@@ -1,0 +1,303 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  super_admin
+  admin
+  doctor
+  nurse
+  patient
+}
+
+enum ReportStatus {
+  pending
+  processing
+  completed
+  failed
+  reviewed
+}
+
+enum AnalysisType {
+  intraoral
+  facial
+  cephalometric
+  panoramic
+  threeDModel @map("3d_model")
+}
+
+model Clinic {
+  id            String   @id @default(uuid())
+  name          String
+  code          String   @unique
+  address       String?
+  phone         String?
+  contactPerson String?  @map("contact_person")
+  licenseNumber String?  @map("license_number")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  isActive      Boolean  @default(true) @map("is_active")
+
+  // 关联关系
+  users                User[]
+  examinations         Examination[]
+  examinationTemplates ExaminationTemplate[]
+
+  @@map("clinics")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole
+  clinicId     String?  @map("clinic_id")
+
+  // 个人信息
+  fullName  String  @map("full_name")
+  phone     String?
+  avatarUrl String? @map("avatar_url")
+
+  // 医生专用字段
+  medicalLicense String? @map("medical_license")
+  specialty      String?
+  title          String?
+
+  // 患者专用字段
+  birthDate        DateTime? @map("birth_date")
+  gender           String?
+  guardianName     String?   @map("guardian_name")
+  guardianPhone    String?   @map("guardian_phone")
+  emergencyContact String?   @map("emergency_contact")
+  emergencyPhone   String?   @map("emergency_phone")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  lastLoginAt DateTime? @map("last_login_at")
+  isActive    Boolean   @default(true) @map("is_active")
+
+  // 关联关系
+  clinic                    Clinic?           @relation(fields: [clinicId], references: [id])
+  patientProfile            PatientProfile?
+  examinationsAsPatient     Examination[]     @relation("PatientExaminations")
+  examinationsAsDoctor      Examination[]     @relation("DoctorExaminations")
+  reviewedReports           Report[]          @relation("ReportReviewer")
+  auditLogs                 AuditLog[]
+  
+  @@map("users")
+}
+
+model PatientProfile {
+  id        String @id @default(uuid())
+  patientId String @unique @map("patient_id")
+
+  // 基本健康信息
+  height         Decimal? @db.Decimal(5, 2)
+  weight         Decimal? @db.Decimal(5, 2)
+  bloodType      String?  @map("blood_type")
+  allergies      String?
+  medicalHistory String?  @map("medical_history")
+  medications    String?
+
+  // 口腔特殊信息
+  dentalHistory      String? @map("dental_history")
+  orthodonticHistory String? @map("orthodontic_history")
+  habits             String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  patient User @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("patient_profiles")
+}
+
+model ExaminationTemplate {
+  id             String @id @default(uuid())
+  clinicId       String? @map("clinic_id")
+  name           String
+  description    String?
+  requiredImages Json   @map("required_images")
+  analysisConfig Json   @map("analysis_config")
+  reportTemplate String? @map("report_template")
+  price          Decimal? @db.Decimal(10, 2)
+  isActive       Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  clinic       Clinic?       @relation(fields: [clinicId], references: [id])
+  examinations Examination[]
+
+  @@map("examination_templates")
+}
+
+model Examination {
+  id                   String       @id @default(uuid())
+  patientId            String       @map("patient_id")
+  doctorId             String       @map("doctor_id")
+  clinicId             String?      @map("clinic_id")
+  templateId           String?      @map("template_id")
+  examinationDate      DateTime     @default(now()) @map("examination_date")
+  chiefComplaint       String?      @map("chief_complaint")
+  presentIllness       String?      @map("present_illness")
+  clinicalFindings     String?      @map("clinical_findings")
+  preliminaryDiagnosis String?      @map("preliminary_diagnosis")
+  status               ReportStatus @default(pending)
+  notes                String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  patient    User                 @relation("PatientExaminations", fields: [patientId], references: [id])
+  doctor     User                 @relation("DoctorExaminations", fields: [doctorId], references: [id])
+  clinic     Clinic?              @relation(fields: [clinicId], references: [id])
+  template   ExaminationTemplate? @relation(fields: [templateId], references: [id])
+  images     Image[]
+  aiAnalyses AIAnalysis[]
+  report     Report?
+
+  @@map("examinations")
+}
+
+model Image {
+  id                  String      @id @default(uuid())
+  examinationId       String      @map("examination_id")
+  originalFilename    String      @map("original_filename")
+  storedFilename      String      @map("stored_filename")
+  filePath            String      @map("file_path")
+  fileSize            BigInt?     @map("file_size")
+  mimeType            String?     @map("mime_type")
+  imageType           AnalysisType @map("image_type")
+  captureDate         DateTime?   @map("capture_date")
+  equipmentInfo       Json?       @map("equipment_info")
+  technicalParams     Json?       @map("technical_params")
+  annotations         Json?
+  preprocessingParams Json?       @map("preprocessing_params")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  examination Examination  @relation(fields: [examinationId], references: [id], onDelete: Cascade)
+  aiAnalyses  AIAnalysis[]
+
+  @@map("images")
+}
+
+model AIAnalysis {
+  id                String      @id @default(uuid())
+  examinationId     String      @map("examination_id")
+  imageId           String?     @map("image_id")
+  analysisType      AnalysisType @map("analysis_type")
+  modelVersion      String      @map("model_version")
+  confidenceScore   Decimal?    @db.Decimal(5, 4) @map("confidence_score")
+  processingTimeMs  Int?        @map("processing_time_ms")
+  rawResults        Json        @map("raw_results")
+  structuredResults Json?       @map("structured_results")
+  keyFindings       Json?       @map("key_findings")
+  riskAssessment    Json?       @map("risk_assessment")
+  recommendations   Json?
+  qualityScore      Decimal?    @db.Decimal(5, 4) @map("quality_score")
+  qualityIssues     Json?       @map("quality_issues")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  examination Examination @relation(fields: [examinationId], references: [id], onDelete: Cascade)
+  image       Image?      @relation(fields: [imageId], references: [id])
+
+  @@map("ai_analyses")
+}
+
+model Report {
+  id                 String       @id @default(uuid())
+  examinationId      String       @unique @map("examination_id")
+  reportNumber       String       @unique @map("report_number")
+  reportDate         DateTime     @default(now()) @map("report_date")
+  executiveSummary   String?      @map("executive_summary")
+  detailedFindings   String?      @map("detailed_findings")
+  aiAnalysisSummary  Json?        @map("ai_analysis_summary")
+  doctorAssessment   String?      @map("doctor_assessment")
+  recommendations    String?
+  followUpPlan       String?      @map("follow_up_plan")
+  status             ReportStatus @default(pending)
+  reviewedBy         String?      @map("reviewed_by")
+  reviewedAt         DateTime?    @map("reviewed_at")
+  reviewComments     String?      @map("review_comments")
+  templateUsed       String?      @map("template_used")
+  generatedByAI      Boolean      @default(false) @map("generated_by_ai")
+  humanReviewed      Boolean      @default(false) @map("human_reviewed")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  examination Examination        @relation(fields: [examinationId], references: [id], onDelete: Cascade)
+  reviewer    User?              @relation("ReportReviewer", fields: [reviewedBy], references: [id])
+  attachments ReportAttachment[]
+
+  @@map("reports")
+}
+
+model ReportAttachment {
+  id          String @id @default(uuid())
+  reportId    String @map("report_id")
+  filename    String
+  filePath    String @map("file_path")
+  fileType    String @map("file_type")
+  fileSize    BigInt? @map("file_size")
+  description String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // 关联关系
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@map("report_attachments")
+}
+
+model SystemConfig {
+  id          String  @id @default(uuid())
+  configKey   String  @unique @map("config_key")
+  configValue Json    @map("config_value")
+  configType  String  @map("config_type")
+  description String?
+  isActive    Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_configs")
+}
+
+model AuditLog {
+  id           String    @id @default(uuid())
+  userId       String?   @map("user_id")
+  action       String
+  resourceType String    @map("resource_type")
+  resourceId   String?   @map("resource_id")
+  oldValues    Json?     @map("old_values")
+  newValues    Json?     @map("new_values")
+  ipAddress    String?   @map("ip_address")
+  userAgent    String?   @map("user_agent")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // 关联关系
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

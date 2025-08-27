@@ -1,0 +1,87 @@
+# Web框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# 数据处理
+numpy==1.25.2
+pandas==2.1.4
+scipy==1.11.4
+
+# 机器学习和深度学习
+torch==2.1.1
+torchvision==0.16.1
+opencv-python==4.8.1.78
+scikit-learn==1.3.2
+scikit-image==0.22.0
+pillow==10.1.0
+
+# 医学影像处理
+pydicom==2.4.3
+nibabel==5.1.0
+SimpleITK==2.3.1
+
+# HTTP客户端和API
+httpx==0.25.2
+aiofiles==23.2.1
+requests==2.31.0
+
+# 数据库
+asyncpg==0.29.0
+redis==5.0.1
+sqlalchemy[asyncio]==2.0.23
+
+# 验证和序列化
+pydantic==2.5.1
+pydantic-settings==2.1.0
+
+# 日志和监控
+loguru==0.7.2
+python-json-logger==2.0.7
+
+# 配置和环境变量
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# 图像增强和处理
+albumentations==1.3.1
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# 工具库
+tqdm==4.66.1
+python-dateutil==2.8.2
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# 测试
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2
+
+# 开发工具
+black==23.12.0
+flake8==6.1.0
+isort==5.13.0
+mypy==1.7.1
+
+# 生产环境
+gunicorn==21.2.0
+python-prometheus-client==0.19.0
+
+# 3D处理（可选）
+trimesh==4.0.5
+pymeshlab==2023.12
+
+# PDF生成
+reportlab==4.0.7
+weasyprint==60.2
+
+# 异步任务
+celery==5.3.4
+redis==5.0.1
+
+# 文件处理
+openpyxl==3.1.2
+xlsxwriter==3.1.9
