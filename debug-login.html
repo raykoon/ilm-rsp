@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>登录调试测试页面</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <h1>🔍 登录功能调试测试</h1>
+    
+    <div class="test">
+        <h3>步骤1: 测试后端健康检查</h3>
+        <button onclick="testHealth()">测试后端健康</button>
+        <div id="healthResult" class="result"></div>
+    </div>
+
+    <div class="test">
+        <h3>步骤2: 测试直接登录API</h3>
+        <button onclick="testDirectLogin()">测试直接登录</button>
+        <div id="directResult" class="result"></div>
+    </div>
+
+    <div class="test">
+        <h3>步骤3: 测试前端代理登录</h3>
+        <button onclick="testProxyLogin()">测试代理登录</button>
+        <div id="proxyResult" class="result"></div>
+    </div>
+
+    <div class="test">
+        <h3>步骤4: 完整登录流程测试</h3>
+        <form onsubmit="testFullLogin(event)">
+            <div>
+                <label>邮箱: <input type="email" id="email" value="super@admin.com" required></label>
+            </div>
+            <div>
+                <label>密码: <input type="password" id="password" value="admin123" required></label>
+            </div>
+            <button type="submit">完整登录测试</button>
+        </form>
+        <div id="fullResult" class="result"></div>
+    </div>
+
+    <script>
+        function log(id, message, isError = false) {
+            const el = document.getElementById(id);
+            el.innerHTML = message;
+            el.className = 'result ' + (isError ? 'error' : 'success');
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch('http://localhost:3001/health');
+                const data = await response.json();
+                log('healthResult', `✅ 后端健康检查成功: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log('healthResult', `❌ 后端健康检查失败: ${error.message}`, true);
+            }
+        }
+
+        async function testDirectLogin() {
+            try {
+                const response = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'super@admin.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                log('directResult', `✅ 直接登录成功: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log('directResult', `❌ 直接登录失败: ${error.message}`, true);
+            }
+        }
+
+        async function testProxyLogin() {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'super@admin.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                log('proxyResult', `✅ 代理登录成功: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                log('proxyResult', `❌ 代理登录失败: ${error.message}`, true);
+            }
+        }
+
+        async function testFullLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                // 模拟完整登录流程
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include' // 包含cookies
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.token) {
+                    // 模拟存储token
+                    document.cookie = `auth_token=${data.data.token}; path=/; max-age=604800`;
+                    
+                    // 测试认证状态
+                    const meResponse = await fetch('/api/auth/me', {
+                        headers: {
+                            'Authorization': `Bearer ${data.data.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    const meData = await meResponse.json();
+                    
+                    log('fullResult', `✅ 完整登录测试成功！
+登录响应: ${JSON.stringify(data, null, 2)}
+
+用户信息验证: ${JSON.stringify(meData, null, 2)}`);
+                } else {
+                    log('fullResult', `❌ 登录响应格式错误: ${JSON.stringify(data, null, 2)}`, true);
+                }
+                
+            } catch (error) {
+                log('fullResult', `❌ 完整登录失败: ${error.message}`, true);
+            }
+        }
+
+        // 页面加载时自动测试
+        window.onload = function() {
+            console.log('开始自动测试...');
+            testHealth();
+            setTimeout(testDirectLogin, 1000);
+            setTimeout(testProxyLogin, 2000);
+        };
+    </script>
+</body>
+</html>

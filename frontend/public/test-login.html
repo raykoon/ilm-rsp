@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录测试页面</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724; 
+            border-color: #c3e6cb;
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border-color: #f5c6cb;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result { 
+            margin: 15px 0; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .status {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 登录功能测试诊断</h1>
+        
+        <div class="test-section">
+            <div class="status">状态检查</div>
+            <button onclick="checkServices()">检查所有服务</button>
+            <div id="statusResult" class="result">点击按钮开始检查...</div>
+        </div>
+
+        <div class="test-section">
+            <div class="status">快速登录测试</div>
+            <button onclick="quickLogin()">一键登录测试</button>
+            <div id="quickResult" class="result">点击按钮测试登录...</div>
+        </div>
+
+        <div class="test-section">
+            <div class="status">手动登录测试</div>
+            <form onsubmit="manualLogin(event)">
+                <input type="email" id="email" placeholder="邮箱" value="super@admin.com" required>
+                <input type="password" id="password" placeholder="密码" value="admin123" required>
+                <button type="submit">手动登录测试</button>
+            </form>
+            <div id="manualResult" class="result">填写信息后点击测试...</div>
+        </div>
+    </div>
+
+    <script>
+        function updateResult(id, content, type = 'info') {
+            const element = document.getElementById(id);
+            element.textContent = content;
+            element.className = 'result ' + type;
+        }
+
+        async function checkServices() {
+            updateResult('statusResult', '正在检查服务状态...');
+            let status = '';
+
+            // 检查后端健康
+            try {
+                const healthResponse = await fetch('http://localhost:3001/health');
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    status += '✅ 后端服务正常 (http://localhost:3001)\n';
+                    status += `   响应: ${JSON.stringify(healthData, null, 2)}\n\n`;
+                } else {
+                    status += `❌ 后端服务异常: HTTP ${healthResponse.status}\n\n`;
+                }
+            } catch (error) {
+                status += `❌ 后端服务连接失败: ${error.message}\n\n`;
+            }
+
+            // 检查前端代理
+            try {
+                const proxyResponse = await fetch('/api/health');
+                if (proxyResponse.ok) {
+                    const proxyData = await proxyResponse.json();
+                    status += '✅ 前端代理正常 (/api)\n';
+                    status += `   响应: ${JSON.stringify(proxyData, null, 2)}\n\n`;
+                } else {
+                    status += `❌ 前端代理异常: HTTP ${proxyResponse.status}\n\n`;
+                }
+            } catch (error) {
+                status += `❌ 前端代理失败: ${error.message}\n\n`;
+            }
+
+            updateResult('statusResult', status);
+        }
+
+        async function quickLogin() {
+            updateResult('quickResult', '正在进行快速登录测试...');
+
+            const testData = {
+                email: 'super@admin.com',
+                password: 'admin123'
+            };
+
+            let result = `测试数据: ${JSON.stringify(testData, null, 2)}\n\n`;
+
+            try {
+                // 测试直接后端调用
+                result += '=== 直接后端API测试 ===\n';
+                const directResponse = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                result += `HTTP状态: ${directResponse.status} ${directResponse.statusText}\n`;
+                
+                if (directResponse.ok) {
+                    const directData = await directResponse.json();
+                    result += `直接API响应: ${JSON.stringify(directData, null, 2)}\n\n`;
+                    
+                    if (directData.success && directData.data && directData.data.token) {
+                        result += '✅ 直接API登录成功!\n\n';
+                        
+                        // 测试前端代理调用
+                        result += '=== 前端代理API测试 ===\n';
+                        try {
+                            const proxyResponse = await fetch('/api/auth/login', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(testData),
+                                credentials: 'include'
+                            });
+
+                            result += `HTTP状态: ${proxyResponse.status} ${proxyResponse.statusText}\n`;
+                            
+                            if (proxyResponse.ok) {
+                                const proxyData = await proxyResponse.json();
+                                result += `代理API响应: ${JSON.stringify(proxyData, null, 2)}\n\n`;
+                                
+                                if (proxyData.success && proxyData.data && proxyData.data.token) {
+                                    result += '✅ 前端代理登录成功!\n';
+                                    result += '🎉 所有测试通过，登录功能正常！\n';
+                                    updateResult('quickResult', result, 'success');
+                                } else {
+                                    result += '❌ 前端代理返回数据格式错误\n';
+                                    updateResult('quickResult', result, 'error');
+                                }
+                            } else {
+                                const errorText = await proxyResponse.text();
+                                result += `错误响应: ${errorText}\n`;
+                                updateResult('quickResult', result, 'error');
+                            }
+                        } catch (proxyError) {
+                            result += `❌ 前端代理测试失败: ${proxyError.message}\n`;
+                            updateResult('quickResult', result, 'error');
+                        }
+                    } else {
+                        result += '❌ 直接API返回数据格式错误\n';
+                        updateResult('quickResult', result, 'error');
+                    }
+                } else {
+                    const errorText = await directResponse.text();
+                    result += `错误响应: ${errorText}\n`;
+                    updateResult('quickResult', result, 'error');
+                }
+            } catch (error) {
+                result += `❌ 测试过程中发生错误: ${error.message}\n`;
+                updateResult('quickResult', result, 'error');
+            }
+        }
+
+        async function manualLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            updateResult('manualResult', '正在进行手动登录测试...');
+
+            const testData = { email, password };
+            let result = `手动输入数据: ${JSON.stringify(testData, null, 2)}\n\n`;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData),
+                    credentials: 'include'
+                });
+
+                result += `HTTP状态: ${response.status} ${response.statusText}\n`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result += `登录响应: ${JSON.stringify(data, null, 2)}\n\n`;
+                    
+                    if (data.success && data.data && data.data.token) {
+                        result += '✅ 手动登录测试成功!\n';
+                        result += `用户信息: ${JSON.stringify(data.data.user, null, 2)}\n`;
+                        result += `Token: ${data.data.token.substring(0, 20)}...\n`;
+                        
+                        // 测试认证状态
+                        try {
+                            const meResponse = await fetch('/api/auth/me', {
+                                headers: {
+                                    'Authorization': `Bearer ${data.data.token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                credentials: 'include'
+                            });
+                            
+                            if (meResponse.ok) {
+                                const meData = await meResponse.json();
+                                result += `\n认证状态检查成功: ${JSON.stringify(meData, null, 2)}`;
+                            }
+                        } catch (meError) {
+                            result += `\n认证状态检查失败: ${meError.message}`;
+                        }
+                        
+                        updateResult('manualResult', result, 'success');
+                    } else {
+                        result += '❌ 登录响应数据格式错误\n';
+                        updateResult('manualResult', result, 'error');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    result += `错误响应: ${errorText}\n`;
+                    updateResult('manualResult', result, 'error');
+                }
+            } catch (error) {
+                result += `❌ 手动登录失败: ${error.message}\n`;
+                updateResult('manualResult', result, 'error');
+            }
+        }
+
+        // 页面加载时自动检查
+        window.onload = function() {
+            setTimeout(checkServices, 500);
+        };
+    </script>
+</body>
+</html>
