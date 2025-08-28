@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { v4 as uuidv4 } from 'uuid'
-import { logger, auditLogger } from '@/utils/logger'
-import { config } from '@/config'
+import { logger, auditLogger } from '../utils/logger'
+import { config } from '../config'
 
 // 扩展Request接口以包含请求开始时间
 declare global {

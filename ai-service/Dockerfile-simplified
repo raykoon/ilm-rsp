@@ -1,0 +1,108 @@
+# AI报告解读服务 - 简化版Dockerfile
+# 专注于报告解读和第三方AI服务集成
+
+FROM python:3.11-slim as python-base
+
+# Python环境配置
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    POETRY_VENV_IN_PROJECT=1
+
+# 设置工作目录
+WORKDIR /app
+
+# ========== 系统依赖阶段 ==========
+FROM python-base as system-deps
+
+# 更新包管理器并安装系统依赖
+RUN apt-get update && apt-get install -y \
+    # 基础构建工具
+    build-essential \
+    pkg-config \
+    # 网络和SSL
+    ca-certificates \
+    curl \
+    # 文件处理
+    file \
+    # PDF生成依赖（用于报告生成）
+    libpango-1.0-0 \
+    libharfbuzz0b \
+    libpangoft2-1.0-0 \
+    # 图像处理基础依赖
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    # 清理缓存
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y \
+    && apt-get clean
+
+# ========== 开发依赖阶段 ==========
+FROM system-deps as development
+
+# 复制依赖文件
+COPY requirements-simplified.txt .
+
+# 安装Python依赖
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --timeout=120 --retries=3 -r requirements-simplified.txt
+
+# 复制应用代码
+COPY . .
+
+# 创建必要目录
+RUN mkdir -p uploads reports templates logs
+
+# 暴露端口
+EXPOSE 8000
+
+# 开发环境启动命令
+CMD ["python", "main-simplified.py"]
+
+# ========== 生产构建阶段 ==========
+FROM system-deps as builder
+
+# 复制依赖文件
+COPY requirements-simplified.txt .
+
+# 安装生产依赖
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --timeout=120 --retries=3 --user --no-warn-script-location \
+    -r requirements-simplified.txt
+
+# ========== 生产运行阶段 ==========
+FROM python-base as production
+
+# 创建应用用户
+RUN groupadd --gid 1000 appuser && \
+    useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home appuser
+
+# 复制Python包
+COPY --from=builder /root/.local /home/appuser/.local
+
+# 确保脚本在PATH中
+ENV PATH="/home/appuser/.local/bin:${PATH}"
+
+# 设置工作目录和权限
+WORKDIR /app
+RUN chown -R appuser:appuser /app
+
+# 切换到应用用户
+USER appuser
+
+# 复制应用代码
+COPY --chown=appuser:appuser . .
+
+# 创建必要目录
+RUN mkdir -p uploads reports templates logs
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health/ping || exit 1
+
+# 暴露端口
+EXPOSE 8000
+
+# 生产环境启动命令
+CMD ["uvicorn", "main-simplified:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

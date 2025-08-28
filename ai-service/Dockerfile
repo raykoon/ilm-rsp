@@ -8,19 +8,29 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # 安装系统依赖
-RUN apt-get update && apt-get install -y \
+RUN apt-get update --fix-missing && \
+    apt-get install -y --no-install-recommends \
     gcc \
     g++ \
+    make \
+    pkg-config \
     libglib2.0-0 \
+    libglib2.0-dev \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libgomp1 \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
+    libgl1-mesa-dri \
+    libglu1-mesa \
     libgtk-3-0 \
+    libgdk-pixbuf2.0-bin \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    wget \
+    ca-certificates \
+    build-essential \
+    python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 创建工作目录
 WORKDIR /app
@@ -29,15 +39,18 @@ WORKDIR /app
 FROM python-base AS development
 
 # 安装额外的开发工具
-RUN apt-get update && apt-get install -y \
+RUN apt-get update --fix-missing && \
+    apt-get install -y --no-install-recommends \
     git \
     vim \
     htop \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 复制requirements文件并安装Python依赖
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir --timeout=120 --retries=3 -r requirements.txt
 
 # 复制应用代码
 COPY . .
@@ -66,8 +79,8 @@ RUN groupadd -r aiservice && useradd -r -g aiservice aiservice
 
 # 安装生产依赖
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install gunicorn==21.2.0
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir --timeout=120 --retries=3 -r requirements.txt
 
 # 复制应用代码
 COPY --chown=aiservice:aiservice . .

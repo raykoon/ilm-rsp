@@ -11,7 +11,7 @@ from io import BytesIO
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, BackgroundTasks
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from PIL import Image
 
 from app.core.config import settings
@@ -24,7 +24,7 @@ router = APIRouter()
 # 请求和响应模型
 class AnalysisRequest(BaseModel):
     """分析请求模型"""
-    analysis_type: str = Field(..., description="分析类型", regex="^(intraoral|facial|cephalometric|panoramic|3d)$")
+    analysis_type: str = Field(..., description="分析类型", pattern="^(intraoral|facial|cephalometric|panoramic|3d)$")
     image_id: Optional[str] = Field(None, description="图像ID")
     options: Dict[str, Any] = Field(default_factory=dict, description="分析选项")
     

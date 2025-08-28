@@ -12,7 +12,7 @@ COPY package*.json ./
 
 # 依赖安装阶段
 FROM base AS deps
-RUN npm ci
+RUN npm install
 
 # 开发阶段
 FROM base AS development

@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
-import { config } from '@/config'
-import { logger } from '@/utils/logger'
+import { config } from './index'
+import { logger } from '../utils/logger'
 
 // 扩展PrismaClient类型以包含软删除中间件
 declare global {

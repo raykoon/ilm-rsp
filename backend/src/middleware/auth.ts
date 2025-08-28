@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { config } from '@/config'
-import { prisma } from '@/config/database'
-import { RedisService, CacheKeys } from '@/config/redis'
-import { AppError, createUnauthorizedError, createForbiddenError } from '@/middleware/errorHandler'
-import { logger } from '@/utils/logger'
+import { config } from '../config'
+import { prisma } from '../config/database'
+import { RedisService, CacheKeys } from '../config/redis'
+import { AppError, createUnauthorizedError, createForbiddenError } from './errorHandler'
+import { logger } from '../utils/logger'
 import { UserRole } from '@prisma/client'
 
 // 扩展Request接口

@@ -3,36 +3,29 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
-  images: {
-    domains: ['localhost', 'minio'],
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '9000',
-        pathname: '/uploads/**',
-      },
-    ],
-  },
+  // 开发环境代理配置
   async rewrites() {
     return [
       {
-        source: '/api/ai/:path*',
-        destination: `${process.env.NEXT_PUBLIC_AI_SERVICE_URL}/:path*`,
+        source: '/api/:path*',
+        destination: 'http://localhost:3001/api/:path*',
       },
-    ];
+    ]
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    return config;
-  },
-};
+  // CORS配置
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization' },
+        ]
+      }
+    ]
+  }
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

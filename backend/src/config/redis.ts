@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from 'redis'
-import { config } from '@/config'
-import { logger } from '@/utils/logger'
+import { config } from './index'
+import { logger } from '../utils/logger'
 
 // Redis客户端实例
 let redisClient: RedisClientType | null = null

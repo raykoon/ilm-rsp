@@ -4,8 +4,9 @@
 """
 
 import os
-from typing import List, Optional
-from pydantic import BaseSettings, Field, validator
+from typing import Optional, List
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings
 from pathlib import Path
 
 # 获取项目根目录
@@ -30,7 +31,8 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(default=False, env="DEBUG")
     TESTING: bool = Field(default=False, env="TESTING")
     
-    @validator("ENVIRONMENT")
+    @field_validator("ENVIRONMENT")
+    @classmethod
     def validate_environment(cls, v):
         if v not in ["development", "testing", "production"]:
             raise ValueError("ENVIRONMENT must be one of: development, testing, production")
@@ -51,30 +53,18 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, env="ACCESS_TOKEN_EXPIRE_MINUTES")
     
     # CORS配置
-    CORS_ORIGINS: List[str] = Field(
-        default=["http://localhost:3000", "http://localhost:3001"],
+    CORS_ORIGINS: str = Field(
+        default="http://localhost:3000,http://localhost:3001",
         env="CORS_ORIGINS"
     )
-    
-    @validator("CORS_ORIGINS", pre=True)
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
     
     # 文件上传配置
     UPLOAD_DIR: str = Field(default=str(BASE_DIR / "uploads"), env="UPLOAD_DIR")
     MAX_FILE_SIZE: int = Field(default=50 * 1024 * 1024, env="MAX_FILE_SIZE")  # 50MB
-    ALLOWED_IMAGE_EXTENSIONS: List[str] = Field(
-        default=[".jpg", ".jpeg", ".png", ".tiff", ".dcm"],
+    ALLOWED_IMAGE_EXTENSIONS: str = Field(
+        default=".jpg,.jpeg,.png,.tiff,.dcm",
         env="ALLOWED_IMAGE_EXTENSIONS"
     )
-    
-    @validator("ALLOWED_IMAGE_EXTENSIONS", pre=True)
-    def parse_extensions(cls, v):
-        if isinstance(v, str):
-            return [ext.strip() for ext in v.split(",")]
-        return v
     
     # AI模型配置
     MODELS_DIR: str = Field(default=str(BASE_DIR / "models"), env="MODELS_DIR")
@@ -95,8 +85,8 @@ class Settings(BaseSettings):
     
     # 图像预处理配置
     IMAGE_SIZE: int = Field(default=512, env="IMAGE_SIZE")
-    NORMALIZE_MEAN: List[float] = Field(default=[0.485, 0.456, 0.406], env="NORMALIZE_MEAN")
-    NORMALIZE_STD: List[float] = Field(default=[0.229, 0.224, 0.225], env="NORMALIZE_STD")
+    NORMALIZE_MEAN: str = Field(default="0.485,0.456,0.406", env="NORMALIZE_MEAN")
+    NORMALIZE_STD: str = Field(default="0.229,0.224,0.225", env="NORMALIZE_STD")
     
     # 质量控制配置
     MIN_CONFIDENCE_THRESHOLD: float = Field(default=0.7, env="MIN_CONFIDENCE_THRESHOLD")
@@ -113,7 +103,8 @@ class Settings(BaseSettings):
     LOG_ROTATION: str = Field(default="1 day", env="LOG_ROTATION")
     LOG_RETENTION: str = Field(default="30 days", env="LOG_RETENTION")
     
-    @validator("LOG_LEVEL")
+    @field_validator("LOG_LEVEL")
+    @classmethod
     def validate_log_level(cls, v):
         if v not in ["TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"]:
             raise ValueError("Invalid log level")
@@ -138,15 +129,9 @@ class Settings(BaseSettings):
     ENABLE_GPU_MONITORING: bool = Field(default=False, env="ENABLE_GPU_MONITORING")
     
     # 安全配置
-    ALLOWED_HOSTS: List[str] = Field(default=["*"], env="ALLOWED_HOSTS")
+    ALLOWED_HOSTS: str = Field(default="*", env="ALLOWED_HOSTS")
     RATE_LIMIT_REQUESTS: int = Field(default=100, env="RATE_LIMIT_REQUESTS")
     RATE_LIMIT_PERIOD: int = Field(default=60, env="RATE_LIMIT_PERIOD")  # seconds
-    
-    @validator("ALLOWED_HOSTS", pre=True)
-    def parse_allowed_hosts(cls, v):
-        if isinstance(v, str):
-            return [host.strip() for host in v.split(",")]
-        return v
     
     # 开发配置
     RELOAD_MODELS: bool = Field(default=False, env="RELOAD_MODELS")
@@ -216,6 +201,31 @@ class Settings(BaseSettings):
             "panoramic": self.PANORAMIC_MODEL_VERSION,
             "3d": self.THREED_MODEL_VERSION
         }
+    
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """CORS源列表"""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+    
+    @property
+    def allowed_extensions_list(self) -> List[str]:
+        """允许的文件扩展名列表"""
+        return [ext.strip() for ext in self.ALLOWED_IMAGE_EXTENSIONS.split(",")]
+    
+    @property
+    def allowed_hosts_list(self) -> List[str]:
+        """允许的主机列表"""
+        return [host.strip() for host in self.ALLOWED_HOSTS.split(",")]
+    
+    @property
+    def normalize_mean_list(self) -> List[float]:
+        """标准化均值列表"""
+        return [float(x.strip()) for x in self.NORMALIZE_MEAN.split(",")]
+    
+    @property
+    def normalize_std_list(self) -> List[float]:
+        """标准化标准差列表"""
+        return [float(x.strip()) for x in self.NORMALIZE_STD.split(",")]
 
 
 # 创建全局设置实例

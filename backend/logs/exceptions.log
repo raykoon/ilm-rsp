@@ -1,0 +1,791 @@
+2025-08-28 06:48:47 [ERROR]: uncaughtException: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+TSError: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19) {
+  "error": {
+    "diagnosticCodes": [
+      7006,
+      7006,
+      7006,
+      7006,
+      7006,
+      7006
+    ]
+  },
+  "stack": "TSError: ⨯ Unable to compile TypeScript:\nsrc/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\n\n    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)\n    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)\n    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)\n    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)\n    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)\n    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)\n    at Module.load (node:internal/modules/cjs/loader:1203:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)\n    at Module.require (node:internal/modules/cjs/loader:1231:19)",
+  "exception": true,
+  "date": "Thu Aug 28 2025 06:48:47 GMT+0000 (Coordinated Universal Time)",
+  "process": {
+    "pid": 30,
+    "uid": 0,
+    "gid": 0,
+    "cwd": "/app",
+    "execPath": "/usr/local/bin/node",
+    "version": "v18.20.8",
+    "argv": [
+      "/app/node_modules/.bin/ts-node",
+      "/app/src/server.ts"
+    ],
+    "memoryUsage": {
+      "rss": 262062080,
+      "heapTotal": 208474112,
+      "heapUsed": 178869016,
+      "external": 6723078,
+      "arrayBuffers": 4937190
+    }
+  },
+  "os": {
+    "loadavg": [
+      0.66,
+      0.85,
+      0.9
+    ],
+    "uptime": 418398.48
+  },
+  "trace": [
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "createTSError",
+      "line": 859,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "reportTSError",
+      "line": 863,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 36,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "getOutput",
+      "line": 1077,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 41,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.compile",
+      "line": 1433,
+      "method": "compile",
+      "native": false
+    },
+    {
+      "column": 30,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Module.m._compile",
+      "line": 1617,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._extensions..js",
+      "line": 1422,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.require.extensions.<computed> [as .ts]",
+      "line": 1621,
+      "method": "ts]",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1203,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1019,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1231,
+      "method": "require",
+      "native": false
+    }
+  ],
+  "service": "ilm-rsp-backend",
+  "version": "1.0.0"
+}
+2025-08-28 07:20:52 [ERROR]: uncaughtException: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+TSError: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19) {
+  "error": {
+    "diagnosticCodes": [
+      7006,
+      7006,
+      7006,
+      7006,
+      7006,
+      7006
+    ]
+  },
+  "stack": "TSError: ⨯ Unable to compile TypeScript:\nsrc/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\n\n    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)\n    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)\n    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)\n    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)\n    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)\n    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)\n    at Module.load (node:internal/modules/cjs/loader:1203:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)\n    at Module.require (node:internal/modules/cjs/loader:1231:19)",
+  "exception": true,
+  "date": "Thu Aug 28 2025 07:20:52 GMT+0000 (Coordinated Universal Time)",
+  "process": {
+    "pid": 30,
+    "uid": 0,
+    "gid": 0,
+    "cwd": "/app",
+    "execPath": "/usr/local/bin/node",
+    "version": "v18.20.8",
+    "argv": [
+      "/app/node_modules/.bin/ts-node",
+      "/app/src/server.ts"
+    ],
+    "memoryUsage": {
+      "rss": 257826816,
+      "heapTotal": 206114816,
+      "heapUsed": 180635656,
+      "external": 4802110,
+      "arrayBuffers": 3016222
+    }
+  },
+  "os": {
+    "loadavg": [
+      1.95,
+      1.48,
+      1.15
+    ],
+    "uptime": 420324.57
+  },
+  "trace": [
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "createTSError",
+      "line": 859,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "reportTSError",
+      "line": 863,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 36,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "getOutput",
+      "line": 1077,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 41,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.compile",
+      "line": 1433,
+      "method": "compile",
+      "native": false
+    },
+    {
+      "column": 30,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Module.m._compile",
+      "line": 1617,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._extensions..js",
+      "line": 1422,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.require.extensions.<computed> [as .ts]",
+      "line": 1621,
+      "method": "ts]",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1203,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1019,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1231,
+      "method": "require",
+      "native": false
+    }
+  ],
+  "service": "ilm-rsp-backend",
+  "version": "1.0.0"
+}
+2025-08-28 07:22:02 [ERROR]: uncaughtException: ⨯ Unable to compile TypeScript:
+[96msrc/config/database.ts[0m:[93m24[0m:[93m22[0m - [91merror[0m[90m TS7006: [0mParameter 'params' implicitly has an 'any' type.
+
+[7m24[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                     ~~~~~~[0m
+[96msrc/config/database.ts[0m:[93m24[0m:[93m30[0m - [91merror[0m[90m TS7006: [0mParameter 'next' implicitly has an 'any' type.
+
+[7m24[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                             ~~~~[0m
+[96msrc/config/database.ts[0m:[93m37[0m:[93m22[0m - [91merror[0m[90m TS7006: [0mParameter 'params' implicitly has an 'any' type.
+
+[7m37[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                     ~~~~~~[0m
+[96msrc/config/database.ts[0m:[93m37[0m:[93m30[0m - [91merror[0m[90m TS7006: [0mParameter 'next' implicitly has an 'any' type.
+
+[7m37[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                             ~~~~[0m
+[96msrc/config/database.ts[0m:[93m48[0m:[93m22[0m - [91merror[0m[90m TS7006: [0mParameter 'params' implicitly has an 'any' type.
+
+[7m48[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                     ~~~~~~[0m
+[96msrc/config/database.ts[0m:[93m48[0m:[93m30[0m - [91merror[0m[90m TS7006: [0mParameter 'next' implicitly has an 'any' type.
+
+[7m48[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                             ~~~~[0m
+
+TSError: ⨯ Unable to compile TypeScript:
+[96msrc/config/database.ts[0m:[93m24[0m:[93m22[0m - [91merror[0m[90m TS7006: [0mParameter 'params' implicitly has an 'any' type.
+
+[7m24[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                     ~~~~~~[0m
+[96msrc/config/database.ts[0m:[93m24[0m:[93m30[0m - [91merror[0m[90m TS7006: [0mParameter 'next' implicitly has an 'any' type.
+
+[7m24[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                             ~~~~[0m
+[96msrc/config/database.ts[0m:[93m37[0m:[93m22[0m - [91merror[0m[90m TS7006: [0mParameter 'params' implicitly has an 'any' type.
+
+[7m37[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                     ~~~~~~[0m
+[96msrc/config/database.ts[0m:[93m37[0m:[93m30[0m - [91merror[0m[90m TS7006: [0mParameter 'next' implicitly has an 'any' type.
+
+[7m37[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                             ~~~~[0m
+[96msrc/config/database.ts[0m:[93m48[0m:[93m22[0m - [91merror[0m[90m TS7006: [0mParameter 'params' implicitly has an 'any' type.
+
+[7m48[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                     ~~~~~~[0m
+[96msrc/config/database.ts[0m:[93m48[0m:[93m30[0m - [91merror[0m[90m TS7006: [0mParameter 'next' implicitly has an 'any' type.
+
+[7m48[0m   prisma.$use(async (params, next) => {
+[7m  [0m [91m                             ~~~~[0m
+
+    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19) {
+  "error": {
+    "diagnosticCodes": [
+      7006,
+      7006,
+      7006,
+      7006,
+      7006,
+      7006
+    ]
+  },
+  "stack": "TSError: ⨯ Unable to compile TypeScript:\n\u001b[96msrc/config/database.ts\u001b[0m:\u001b[93m24\u001b[0m:\u001b[93m22\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS7006: \u001b[0mParameter 'params' implicitly has an 'any' type.\n\n\u001b[7m24\u001b[0m   prisma.$use(async (params, next) => {\n\u001b[7m  \u001b[0m \u001b[91m                     ~~~~~~\u001b[0m\n\u001b[96msrc/config/database.ts\u001b[0m:\u001b[93m24\u001b[0m:\u001b[93m30\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS7006: \u001b[0mParameter 'next' implicitly has an 'any' type.\n\n\u001b[7m24\u001b[0m   prisma.$use(async (params, next) => {\n\u001b[7m  \u001b[0m \u001b[91m                             ~~~~\u001b[0m\n\u001b[96msrc/config/database.ts\u001b[0m:\u001b[93m37\u001b[0m:\u001b[93m22\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS7006: \u001b[0mParameter 'params' implicitly has an 'any' type.\n\n\u001b[7m37\u001b[0m   prisma.$use(async (params, next) => {\n\u001b[7m  \u001b[0m \u001b[91m                     ~~~~~~\u001b[0m\n\u001b[96msrc/config/database.ts\u001b[0m:\u001b[93m37\u001b[0m:\u001b[93m30\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS7006: \u001b[0mParameter 'next' implicitly has an 'any' type.\n\n\u001b[7m37\u001b[0m   prisma.$use(async (params, next) => {\n\u001b[7m  \u001b[0m \u001b[91m                             ~~~~\u001b[0m\n\u001b[96msrc/config/database.ts\u001b[0m:\u001b[93m48\u001b[0m:\u001b[93m22\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS7006: \u001b[0mParameter 'params' implicitly has an 'any' type.\n\n\u001b[7m48\u001b[0m   prisma.$use(async (params, next) => {\n\u001b[7m  \u001b[0m \u001b[91m                     ~~~~~~\u001b[0m\n\u001b[96msrc/config/database.ts\u001b[0m:\u001b[93m48\u001b[0m:\u001b[93m30\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS7006: \u001b[0mParameter 'next' implicitly has an 'any' type.\n\n\u001b[7m48\u001b[0m   prisma.$use(async (params, next) => {\n\u001b[7m  \u001b[0m \u001b[91m                             ~~~~\u001b[0m\n\n    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)\n    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)\n    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)\n    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)\n    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)\n    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)\n    at Module.load (node:internal/modules/cjs/loader:1203:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)\n    at Module.require (node:internal/modules/cjs/loader:1231:19)",
+  "exception": true,
+  "date": "Thu Aug 28 2025 07:22:02 GMT+0000 (Coordinated Universal Time)",
+  "process": {
+    "pid": 57,
+    "uid": 0,
+    "gid": 0,
+    "cwd": "/app",
+    "execPath": "/usr/local/bin/node",
+    "version": "v18.20.8",
+    "argv": [
+      "/app/node_modules/.bin/ts-node",
+      "/app/src/server.ts"
+    ],
+    "memoryUsage": {
+      "rss": 266309632,
+      "heapTotal": 208736256,
+      "heapUsed": 178146232,
+      "external": 6722918,
+      "arrayBuffers": 4937030
+    }
+  },
+  "os": {
+    "loadavg": [
+      1.72,
+      1.47,
+      1.17
+    ],
+    "uptime": 420393.67
+  },
+  "trace": [
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "createTSError",
+      "line": 859,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "reportTSError",
+      "line": 863,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 36,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "getOutput",
+      "line": 1077,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 41,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.compile",
+      "line": 1433,
+      "method": "compile",
+      "native": false
+    },
+    {
+      "column": 30,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Module.m._compile",
+      "line": 1617,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._extensions..js",
+      "line": 1422,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.require.extensions.<computed> [as .ts]",
+      "line": 1621,
+      "method": "ts]",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1203,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1019,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1231,
+      "method": "require",
+      "native": false
+    }
+  ],
+  "service": "ilm-rsp-backend",
+  "version": "1.0.0"
+}
+2025-08-28 07:29:08 [ERROR]: uncaughtException: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+TSError: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19) {
+  "error": {
+    "diagnosticCodes": [
+      7006,
+      7006,
+      7006,
+      7006,
+      7006,
+      7006
+    ]
+  },
+  "stack": "TSError: ⨯ Unable to compile TypeScript:\nsrc/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\n\n    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)\n    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)\n    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)\n    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)\n    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)\n    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)\n    at Module.load (node:internal/modules/cjs/loader:1203:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)\n    at Module.require (node:internal/modules/cjs/loader:1231:19)",
+  "exception": true,
+  "date": "Thu Aug 28 2025 07:29:08 GMT+0000 (Coordinated Universal Time)",
+  "process": {
+    "pid": 30,
+    "uid": 0,
+    "gid": 0,
+    "cwd": "/app",
+    "execPath": "/usr/local/bin/node",
+    "version": "v18.20.8",
+    "argv": [
+      "/app/node_modules/.bin/ts-node",
+      "/app/src/server.ts"
+    ],
+    "memoryUsage": {
+      "rss": 262778880,
+      "heapTotal": 208211968,
+      "heapUsed": 178598384,
+      "external": 6722982,
+      "arrayBuffers": 4937094
+    }
+  },
+  "os": {
+    "loadavg": [
+      1.55,
+      1.2,
+      1.15
+    ],
+    "uptime": 420820.16
+  },
+  "trace": [
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "createTSError",
+      "line": 859,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "reportTSError",
+      "line": 863,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 36,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "getOutput",
+      "line": 1077,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 41,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.compile",
+      "line": 1433,
+      "method": "compile",
+      "native": false
+    },
+    {
+      "column": 30,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Module.m._compile",
+      "line": 1617,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._extensions..js",
+      "line": 1422,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.require.extensions.<computed> [as .ts]",
+      "line": 1621,
+      "method": "ts]",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1203,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1019,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1231,
+      "method": "require",
+      "native": false
+    }
+  ],
+  "service": "ilm-rsp-backend",
+  "version": "1.0.0"
+}
+2025-08-28 07:51:27 [ERROR]: uncaughtException: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+TSError: ⨯ Unable to compile TypeScript:
+src/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+src/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.
+src/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.
+
+    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)
+    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)
+    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)
+    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)
+    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)
+    at Module.require (node:internal/modules/cjs/loader:1231:19) {
+  "error": {
+    "diagnosticCodes": [
+      7006,
+      7006,
+      7006,
+      7006,
+      7006,
+      7006
+    ]
+  },
+  "stack": "TSError: ⨯ Unable to compile TypeScript:\nsrc/config/database.ts(24,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(24,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(37,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(37,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\nsrc/config/database.ts(48,22): error TS7006: Parameter 'params' implicitly has an 'any' type.\nsrc/config/database.ts(48,30): error TS7006: Parameter 'next' implicitly has an 'any' type.\n\n    at createTSError (/app/node_modules/ts-node/src/index.ts:859:12)\n    at reportTSError (/app/node_modules/ts-node/src/index.ts:863:19)\n    at getOutput (/app/node_modules/ts-node/src/index.ts:1077:36)\n    at Object.compile (/app/node_modules/ts-node/src/index.ts:1433:41)\n    at Module.m._compile (/app/node_modules/ts-node/src/index.ts:1617:30)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)\n    at Object.require.extensions.<computed> [as .ts] (/app/node_modules/ts-node/src/index.ts:1621:12)\n    at Module.load (node:internal/modules/cjs/loader:1203:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:1019:12)\n    at Module.require (node:internal/modules/cjs/loader:1231:19)",
+  "exception": true,
+  "date": "Thu Aug 28 2025 07:51:27 GMT+0000 (Coordinated Universal Time)",
+  "process": {
+    "pid": 30,
+    "uid": 0,
+    "gid": 0,
+    "cwd": "/app",
+    "execPath": "/usr/local/bin/node",
+    "version": "v18.20.8",
+    "argv": [
+      "/app/node_modules/.bin/ts-node",
+      "/app/src/server.ts"
+    ],
+    "memoryUsage": {
+      "rss": 260620288,
+      "heapTotal": 206376960,
+      "heapUsed": 174059072,
+      "external": 6730143,
+      "arrayBuffers": 4944255
+    }
+  },
+  "os": {
+    "loadavg": [
+      1.55,
+      0.93,
+      0.92
+    ],
+    "uptime": 422158.99
+  },
+  "trace": [
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "createTSError",
+      "line": 859,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "reportTSError",
+      "line": 863,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 36,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "getOutput",
+      "line": 1077,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 41,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.compile",
+      "line": 1433,
+      "method": "compile",
+      "native": false
+    },
+    {
+      "column": 30,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Module.m._compile",
+      "line": 1617,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._extensions..js",
+      "line": 1422,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "/app/node_modules/ts-node/src/index.ts",
+      "function": "Object.require.extensions.<computed> [as .ts]",
+      "line": 1621,
+      "method": "ts]",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1203,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1019,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 19,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1231,
+      "method": "require",
+      "native": false
+    }
+  ],
+  "service": "ilm-rsp-backend",
+  "version": "1.0.0"
+}

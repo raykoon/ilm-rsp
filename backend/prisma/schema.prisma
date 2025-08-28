@@ -91,6 +91,7 @@ model User {
   examinationsAsPatient     Examination[]     @relation("PatientExaminations")
   examinationsAsDoctor      Examination[]     @relation("DoctorExaminations")
   reviewedReports           Report[]          @relation("ReportReviewer")
+  uploadedFiles             UploadedFile[]
   auditLogs                 AuditLog[]
   
   @@map("users")
@@ -161,13 +162,14 @@ model Examination {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // 关联关系
-  patient    User                 @relation("PatientExaminations", fields: [patientId], references: [id])
-  doctor     User                 @relation("DoctorExaminations", fields: [doctorId], references: [id])
-  clinic     Clinic?              @relation(fields: [clinicId], references: [id])
-  template   ExaminationTemplate? @relation(fields: [templateId], references: [id])
-  images     Image[]
-  aiAnalyses AIAnalysis[]
-  report     Report?
+  patient       User                 @relation("PatientExaminations", fields: [patientId], references: [id])
+  doctor        User                 @relation("DoctorExaminations", fields: [doctorId], references: [id])
+  clinic        Clinic?              @relation(fields: [clinicId], references: [id])
+  template      ExaminationTemplate? @relation(fields: [templateId], references: [id])
+  images        Image[]
+  aiAnalyses    AIAnalysis[]
+  uploadedFiles UploadedFile[]
+  report        Report?
 
   @@map("examinations")
 }
@@ -282,6 +284,33 @@ model SystemConfig {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("system_configs")
+}
+
+model UploadedFile {
+  id           String   @id @default(uuid())
+  originalName String   @map("original_name")      // 原始文件名
+  filename     String                              // 存储的文件名
+  path         String                              // 文件路径
+  size         BigInt                              // 文件大小（字节）
+  mimetype     String                              // MIME类型
+  fileType     String   @map("file_type")          // 文件类型分类 (image, 3d_model, document)
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+  
+  // 关联关系
+  uploadedById String @map("uploaded_by_id")
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  
+  examinationId String?     @map("examination_id")
+  examination   Examination? @relation(fields: [examinationId], references: [id], onDelete: SetNull)
+  
+  // 元数据（JSON格式存储额外信息）
+  metadata     Json     @default("{}")
+  
+  // 索引
+  @@index([uploadedById])
+  @@index([examinationId])
+  @@index([fileType])
+  @@map("uploaded_files")
 }
 
 model AuditLog {

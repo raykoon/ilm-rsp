@@ -12,14 +12,14 @@ COPY package*.json ./
 
 # 开发阶段
 FROM base AS development
-RUN npm ci
+RUN npm install
 COPY . .
 EXPOSE 3001
 CMD ["npm", "run", "dev"]
 
 # 构建阶段
 FROM base AS builder
-RUN npm ci
+RUN npm install
 COPY . .
 RUN npx prisma generate
 RUN npm run build
@@ -36,7 +36,7 @@ WORKDIR /app
 
 # 复制package文件并安装生产依赖
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # 复制构建产物
 COPY --from=builder --chown=backend:nodejs /app/dist ./dist

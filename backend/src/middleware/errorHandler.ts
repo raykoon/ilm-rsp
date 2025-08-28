@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { ZodError } from 'zod'
 import { Prisma } from '@prisma/client'
-import { logger } from '@/utils/logger'
-import { config } from '@/config'
+import { logger } from '../utils/logger'
+import { config } from '../config'
 
 // 自定义错误类
 export class AppError extends Error {

@@ -86,7 +86,7 @@ services:
       MINIO_ACCESS_KEY: admin
       MINIO_SECRET_KEY: admin123456
       MINIO_BUCKET: ilm-rsp-files
-      CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:3001"
       LOG_LEVEL: info
     depends_on:
       postgres:
@@ -120,7 +120,7 @@ services:
       SECRET_KEY: your-ai-service-secret-key-at-least-32-characters-long
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 8000
-      CORS_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:8000
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:3001,http://localhost:8000"
       LOG_LEVEL: INFO
       DEVICE: cpu
     depends_on:

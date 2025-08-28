@@ -35,7 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const response = await api.get('/auth/me')
-      setUser(response.data.user)
+      // 后端返回格式是 { success: true, data: { user } }
+      if (response.data.success && response.data.data?.user) {
+        setUser(response.data.data.user)
+      } else {
+        Cookies.remove('auth_token')
+      }
     } catch (error) {
       console.error('Auth check failed:', error)
       Cookies.remove('auth_token')
@@ -48,7 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<AuthResponse> => {
     try {
       const response = await api.post('/auth/login', { email, password })
-      const { user: userData, token } = response.data
+      const { data } = response.data // 后端返回格式是 { success: true, data: { user, token } }
+      const { user: userData, token } = data
       
       // 存储token
       Cookies.set('auth_token', token, { 

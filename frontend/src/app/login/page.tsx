@@ -220,19 +220,23 @@ export default function LoginPage() {
 
             {/* Demo Accounts */}
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-3">演示账户</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">测试账户</p>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">管理员:</span>
-                  <span className="font-mono text-blue-600">admin@ilm-rsp.com / admin123</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">超级管理员:</span>
+                  <span className="font-mono text-blue-600 text-xs">super@admin.com / admin123</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">门诊管理员:</span>
+                  <span className="font-mono text-purple-600 text-xs">admin@clinic.com / admin123</span>
+                </div>
+                <div className="flex justify-between items-center">
                   <span className="text-gray-600">医生:</span>
-                  <span className="font-mono text-green-600">doctor1@demo.com / doctor123</span>
+                  <span className="font-mono text-green-600 text-xs">doctor@clinic.com / doctor123</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-gray-600">患者:</span>
-                  <span className="font-mono text-purple-600">patient@demo.com / patient123</span>
+                  <span className="font-mono text-orange-600 text-xs">patient@example.com / patient123</span>
                 </div>
               </div>
             </div>
