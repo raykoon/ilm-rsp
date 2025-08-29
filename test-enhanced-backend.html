@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强版后端API测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+        }
+        h1 {
+            text-align: center;
+            color: #4c51bf;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .test-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .success { border-color: #48bb78; background: #f0fff4; }
+        .error { border-color: #f56565; background: #fffaf0; }
+        .info { border-color: #4299e1; background: #ebf8ff; }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border-left: 4px solid #e2e8f0;
+        }
+        .success .result { border-left-color: #48bb78; }
+        .error .result { border-left-color: #f56565; }
+        .info .result { border-left-color: #4299e1; }
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(76, 81, 191, 0.9);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+        .api-list {
+            background: #2d3748;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .api-list h3 {
+            color: #63b3ed;
+            margin-bottom: 15px;
+        }
+        .api-endpoint {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            border-left: 3px solid #63b3ed;
+        }
+    </style>
+</head>
+<body>
+    <div class="status-bar" id="statusBar">
+        🚀 增强版后端API测试工具 - 准备就绪
+    </div>
+
+    <div style="margin-top: 60px;">
+        <div class="container">
+            <h1>🔬 增强版后端API全面测试</h1>
+            
+            <!-- API端点列表 -->
+            <div class="api-list">
+                <h3>📋 可用API端点</h3>
+                <div class="api-endpoint">GET /health - 健康检查</div>
+                <div class="api-endpoint">POST /api/auth/login - 用户登录</div>
+                <div class="api-endpoint">GET /api/auth/me - 获取用户信息</div>
+                <div class="api-endpoint">GET /api/clinics - 门诊列表</div>
+                <div class="api-endpoint">POST /api/clinics - 创建门诊</div>
+                <div class="api-endpoint">GET /api/patients - 患者列表</div>
+                <div class="api-endpoint">GET /api/examinations - 检查记录</div>
+                <div class="api-endpoint">GET /api/stats/overview - 统计数据</div>
+            </div>
+
+            <!-- 测试区域 -->
+            <div class="test-grid">
+                <!-- 基础功能测试 -->
+                <div class="test-section info" id="basicSection">
+                    <h3>🔍 基础功能测试</h3>
+                    <button onclick="testBasicAPIs()">运行基础测试</button>
+                    <div id="basicResult" class="result">点击运行基础功能测试...</div>
+                </div>
+
+                <!-- 认证系统测试 -->
+                <div class="test-section" id="authSection">
+                    <h3>🔐 认证系统测试</h3>
+                    <button onclick="testAuthFlow()">测试认证流程</button>
+                    <div id="authResult" class="result">点击测试认证系统...</div>
+                </div>
+
+                <!-- 门诊管理测试 -->
+                <div class="test-section" id="clinicSection">
+                    <h3>🏥 门诊管理测试</h3>
+                    <button onclick="testClinicAPIs()">测试门诊API</button>
+                    <button onclick="testCreateClinic()">测试创建门诊</button>
+                    <div id="clinicResult" class="result">点击测试门诊管理...</div>
+                </div>
+
+                <!-- 患者管理测试 -->
+                <div class="test-section" id="patientSection">
+                    <h3>👥 患者管理测试</h3>
+                    <button onclick="testPatientAPIs()">测试患者API</button>
+                    <div id="patientResult" class="result">点击测试患者管理...</div>
+                </div>
+
+                <!-- 统计数据测试 -->
+                <div class="test-section" id="statsSection">
+                    <h3>📊 统计数据测试</h3>
+                    <button onclick="testStatsAPI()">测试统计API</button>
+                    <div id="statsResult" class="result">点击测试统计数据...</div>
+                </div>
+
+                <!-- 全面测试 -->
+                <div class="test-section" id="fullSection">
+                    <h3>🎯 全面功能测试</h3>
+                    <button onclick="runFullTest()" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">运行完整测试</button>
+                    <div id="fullResult" class="result">点击运行完整系统测试...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        let authToken = '';
+
+        function updateStatus(message) {
+            document.getElementById('statusBar').textContent = message;
+        }
+
+        function updateResult(sectionId, content, type = 'info') {
+            const section = document.getElementById(sectionId);
+            const resultDiv = section.querySelector('.result');
+            resultDiv.textContent = content;
+            section.className = 'test-section ' + type;
+        }
+
+        async function testBasicAPIs() {
+            updateStatus('🔍 测试基础API功能...');
+            let result = '🚀 基础功能测试开始...\n\n';
+
+            try {
+                // 测试健康检查
+                result += '1. 健康检查测试:\n';
+                const healthResponse = await fetch(`${API_BASE}/health`);
+                const healthData = await healthResponse.json();
+                
+                if (healthResponse.ok) {
+                    result += `   ✅ 健康检查成功 (${healthResponse.status})\n`;
+                    result += `   📊 服务状态: ${healthData.status}\n`;
+                    result += `   🕐 响应时间: ${healthData.timestamp}\n`;
+                    result += `   💾 数据库: ${healthData.services.database}\n\n`;
+                } else {
+                    result += `   ❌ 健康检查失败: ${healthResponse.status}\n\n`;
+                }
+
+                updateResult('basicSection', result, 'success');
+                updateStatus('✅ 基础功能测试完成');
+
+            } catch (error) {
+                result += `❌ 测试失败: ${error.message}\n`;
+                updateResult('basicSection', result, 'error');
+                updateStatus('❌ 基础功能测试失败');
+            }
+        }
+
+        async function testAuthFlow() {
+            updateStatus('🔐 测试认证流程...');
+            let result = '🔐 认证系统测试开始...\n\n';
+
+            try {
+                // 测试登录
+                result += '1. 用户登录测试:\n';
+                const loginResponse = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'super@admin.com',
+                        password: 'admin123'
+                    })
+                });
+
+                const loginData = await loginResponse.json();
+
+                if (loginResponse.ok && loginData.success) {
+                    authToken = loginData.data.token;
+                    result += `   ✅ 登录成功 (${loginResponse.status})\n`;
+                    result += `   👤 用户: ${loginData.data.user.fullName}\n`;
+                    result += `   🎭 角色: ${loginData.data.user.role}\n`;
+                    result += `   🔑 Token: ${authToken.substring(0, 30)}...\n\n`;
+
+                    // 测试认证状态
+                    result += '2. 认证状态检查:\n';
+                    const meResponse = await fetch(`${API_BASE}/api/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    });
+
+                    const meData = await meResponse.json();
+
+                    if (meResponse.ok && meData.success) {
+                        result += `   ✅ 认证状态正常\n`;
+                        result += `   📋 用户信息验证成功\n`;
+                    } else {
+                        result += `   ❌ 认证状态检查失败\n`;
+                    }
+
+                } else {
+                    result += `   ❌ 登录失败: ${loginData.error || '未知错误'}\n`;
+                }
+
+                updateResult('authSection', result, 'success');
+                updateStatus('✅ 认证流程测试完成');
+
+            } catch (error) {
+                result += `❌ 认证测试失败: ${error.message}\n`;
+                updateResult('authSection', result, 'error');
+                updateStatus('❌ 认证流程测试失败');
+            }
+        }
+
+        async function testClinicAPIs() {
+            if (!authToken) {
+                updateResult('clinicSection', '❌ 请先完成认证测试获取Token', 'error');
+                return;
+            }
+
+            updateStatus('🏥 测试门诊管理API...');
+            let result = '🏥 门诊管理API测试开始...\n\n';
+
+            try {
+                // 获取门诊列表
+                result += '1. 获取门诊列表:\n';
+                const clinicsResponse = await fetch(`${API_BASE}/api/clinics?page=1&limit=10`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const clinicsData = await clinicsResponse.json();
+
+                if (clinicsResponse.ok && clinicsData.success) {
+                    result += `   ✅ 门诊列表获取成功 (${clinicsResponse.status})\n`;
+                    result += `   📊 门诊总数: ${clinicsData.data.pagination.total}\n`;
+                    result += `   📋 当前页数据: ${clinicsData.data.clinics.length}个\n\n`;
+
+                    clinicsData.data.clinics.forEach((clinic, index) => {
+                        result += `   ${index + 1}. ${clinic.name} (${clinic.code})\n`;
+                        result += `      📍 地址: ${clinic.address}\n`;
+                        result += `      👥 用户: ${clinic._count.users} | 患者: ${clinic._count.patients}\n\n`;
+                    });
+                } else {
+                    result += `   ❌ 门诊列表获取失败: ${clinicsData.error}\n`;
+                }
+
+                updateResult('clinicSection', result, 'success');
+                updateStatus('✅ 门诊管理API测试完成');
+
+            } catch (error) {
+                result += `❌ 门诊API测试失败: ${error.message}\n`;
+                updateResult('clinicSection', result, 'error');
+                updateStatus('❌ 门诊管理API测试失败');
+            }
+        }
+
+        async function testCreateClinic() {
+            if (!authToken) {
+                updateResult('clinicSection', '❌ 请先完成认证测试获取Token', 'error');
+                return;
+            }
+
+            updateStatus('🏥 测试创建门诊...');
+            
+            try {
+                const newClinic = {
+                    name: '测试口腔诊所',
+                    code: 'TEST' + Date.now(),
+                    address: '测试地址123号',
+                    phone: '400-123-4567',
+                    email: 'test@clinic.com'
+                };
+
+                const createResponse = await fetch(`${API_BASE}/api/clinics`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newClinic)
+                });
+
+                const createData = await createResponse.json();
+                let result = '🆕 创建门诊测试:\n\n';
+
+                if (createResponse.ok && createData.success) {
+                    result += `✅ 门诊创建成功!\n`;
+                    result += `📋 门诊ID: ${createData.data.clinic.id}\n`;
+                    result += `🏥 门诊名称: ${createData.data.clinic.name}\n`;
+                    result += `📍 门诊代码: ${createData.data.clinic.code}\n`;
+                } else {
+                    result += `❌ 门诊创建失败: ${createData.error}\n`;
+                }
+
+                const currentResult = document.getElementById('clinicSection').querySelector('.result').textContent;
+                updateResult('clinicSection', currentResult + '\n' + result, 'success');
+                updateStatus('✅ 创建门诊测试完成');
+
+            } catch (error) {
+                updateResult('clinicSection', `❌ 创建门诊失败: ${error.message}`, 'error');
+                updateStatus('❌ 创建门诊测试失败');
+            }
+        }
+
+        async function testPatientAPIs() {
+            if (!authToken) {
+                updateResult('patientSection', '❌ 请先完成认证测试获取Token', 'error');
+                return;
+            }
+
+            updateStatus('👥 测试患者管理API...');
+            let result = '👥 患者管理API测试开始...\n\n';
+
+            try {
+                const patientsResponse = await fetch(`${API_BASE}/api/patients?page=1&limit=5`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const patientsData = await patientsResponse.json();
+
+                if (patientsResponse.ok && patientsData.success) {
+                    result += `✅ 患者列表获取成功 (${patientsResponse.status})\n`;
+                    result += `📊 患者总数: ${patientsData.data.pagination.total}\n`;
+                    result += `📋 当前页患者: ${patientsData.data.patients.length}个\n\n`;
+
+                    patientsData.data.patients.forEach((patient, index) => {
+                        result += `${index + 1}. ${patient.name} (${patient.gender === 'male' ? '男' : '女'})\n`;
+                        result += `   📅 出生日期: ${patient.birthDate}\n`;
+                        result += `   👨‍👩‍👧‍👦 监护人: ${patient.guardianName}\n`;
+                        result += `   📱 联系电话: ${patient.guardianPhone}\n`;
+                        result += `   🔍 检查次数: ${patient._count.examinations}\n\n`;
+                    });
+                } else {
+                    result += `❌ 患者列表获取失败: ${patientsData.error}\n`;
+                }
+
+                updateResult('patientSection', result, 'success');
+                updateStatus('✅ 患者管理API测试完成');
+
+            } catch (error) {
+                result += `❌ 患者API测试失败: ${error.message}\n`;
+                updateResult('patientSection', result, 'error');
+                updateStatus('❌ 患者管理API测试失败');
+            }
+        }
+
+        async function testStatsAPI() {
+            if (!authToken) {
+                updateResult('statsSection', '❌ 请先完成认证测试获取Token', 'error');
+                return;
+            }
+
+            updateStatus('📊 测试统计数据API...');
+            let result = '📊 统计数据API测试开始...\n\n';
+
+            try {
+                const statsResponse = await fetch(`${API_BASE}/api/stats/overview`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const statsData = await statsResponse.json();
+
+                if (statsResponse.ok && statsData.success) {
+                    const stats = statsData.data;
+                    result += `✅ 统计数据获取成功!\n\n`;
+                    result += `👥 总患者数: ${stats.totalPatients}\n`;
+                    result += `🔍 总检查数: ${stats.totalExaminations}\n`;
+                    result += `📋 已完成报告: ${stats.completedReports}\n`;
+                    result += `⏳ 待处理报告: ${stats.pendingReports}\n`;
+                    result += `📈 完成率: ${stats.completionRate}%\n`;
+                    result += `🏥 活跃门诊: ${stats.activeClinics}\n`;
+                    result += `👨‍⚕️ 活跃医生: ${stats.activeDoctors}\n`;
+                    result += `📅 今日检查: ${stats.todayExaminations}\n\n`;
+                    result += `📈 月增长率:\n`;
+                    result += `   患者: +${stats.monthlyGrowth.patients}%\n`;
+                    result += `   检查: +${stats.monthlyGrowth.examinations}%\n`;
+                } else {
+                    result += `❌ 统计数据获取失败: ${statsData.error}\n`;
+                }
+
+                updateResult('statsSection', result, 'success');
+                updateStatus('✅ 统计数据API测试完成');
+
+            } catch (error) {
+                result += `❌ 统计API测试失败: ${error.message}\n`;
+                updateResult('statsSection', result, 'error');
+                updateStatus('❌ 统计数据API测试失败');
+            }
+        }
+
+        async function runFullTest() {
+            updateStatus('🚀 运行完整系统测试...');
+            updateResult('fullSection', '🚀 开始完整系统测试...\n\n', 'info');
+
+            const tests = [
+                { name: '基础功能', func: testBasicAPIs },
+                { name: '认证系统', func: testAuthFlow },
+                { name: '门诊管理', func: testClinicAPIs },
+                { name: '患者管理', func: testPatientAPIs },
+                { name: '统计数据', func: testStatsAPI }
+            ];
+
+            let allResults = '';
+            let passedTests = 0;
+
+            for (let i = 0; i < tests.length; i++) {
+                const test = tests[i];
+                updateStatus(`🧪 测试进行中 (${i + 1}/${tests.length}): ${test.name}`);
+                
+                try {
+                    await test.func();
+                    allResults += `✅ ${test.name}测试: 通过\n`;
+                    passedTests++;
+                } catch (error) {
+                    allResults += `❌ ${test.name}测试: 失败 (${error.message})\n`;
+                }
+
+                // 等待一下，让用户看到进度
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            const finalResult = `🎯 完整系统测试结果:\n\n${allResults}\n` +
+                              `📊 测试统计:\n` +
+                              `   ✅ 通过: ${passedTests}/${tests.length}\n` +
+                              `   📈 成功率: ${((passedTests / tests.length) * 100).toFixed(1)}%\n\n` +
+                              `${passedTests === tests.length ? 
+                                '🎉 恭喜! 所有测试通过，系统完全正常!' : 
+                                '⚠️ 部分测试失败，请检查具体测试结果'}\n\n` +
+                              `🚀 系统状态: ${passedTests >= 4 ? '生产就绪' : '需要调试'}\n` +
+                              `📅 测试完成时间: ${new Date().toLocaleString()}`;
+
+            updateResult('fullSection', finalResult, passedTests === tests.length ? 'success' : 'error');
+            updateStatus(passedTests === tests.length ? 
+                '🎉 完整测试通过 - 系统生产就绪!' : 
+                `⚠️ 测试完成 - ${passedTests}/${tests.length}通过`);
+        }
+
+        // 页面加载时自动运行基础测试
+        window.onload = function() {
+            setTimeout(() => {
+                updateStatus('⚡ 自动运行基础功能测试...');
+                testBasicAPIs();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

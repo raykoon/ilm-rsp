@@ -2,14 +2,14 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import toast from 'react-hot-toast'
 
-// 开发环境使用相对路径（通过Next.js代理），生产环境使用完整URL
+// 直接指向后端API，绕过Next.js代理
 const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? '' // 空字符串，使用相对路径通过Next.js代理
+  ? 'http://localhost:3001' // 直接指向后端
   : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 // 创建axios实例
 export const api = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? '/api' : `${API_BASE_URL}/api`,
+  baseURL: `${API_BASE_URL}/api`,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ api.interceptors.response.use(
 
 // 文件上传API
 export const uploadApi = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' ? '/api' : `${API_BASE_URL}/api`,
+  baseURL: `${API_BASE_URL}/api`,
   timeout: 60000, // 文件上传超时时间更长
   headers: {
     'Content-Type': 'multipart/form-data',

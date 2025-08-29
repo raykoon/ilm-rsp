@@ -1,25 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { 
+import {
   Users, 
   Building2, 
   ClipboardList, 
-  Activity,
   Settings,
+  Activity,
+  Database,
   Shield,
   TrendingUp,
-  AlertTriangle,
   Calendar,
-  FileText,
-  Database,
-  Cpu
+  BarChart3,
+  UserCheck,
+  Clock,
+  Download,
+  Plus
 } from 'lucide-react'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { MedicalCard, ChartCard, StatusIndicator } from '@/components/ui/medical-card'
+import { MedicalLayout } from '@/components/Layout/MedicalLayout'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface StatsCard {
@@ -31,6 +35,7 @@ interface StatsCard {
     value: string
     isPositive: boolean
   }
+  variant: 'primary' | 'secondary' | 'accent' | 'warning'
 }
 
 const statsCards: StatsCard[] = [
@@ -39,144 +44,148 @@ const statsCards: StatsCard[] = [
     value: '1,248',
     description: '平台注册用户总数',
     icon: Users,
-    trend: { value: '+12%', isPositive: true }
+    trend: { value: '+12%', isPositive: true },
+    variant: 'primary'
   },
   {
     title: '合作机构',
     value: '52',
     description: '活跃的医疗机构',
     icon: Building2,
-    trend: { value: '+3', isPositive: true }
+    trend: { value: '+3', isPositive: true },
+    variant: 'secondary'
   },
   {
-    title: '本月筛查',
-    value: '3,847',
-    description: '本月完成的筛查次数',
+    title: '今日检查',
+    value: '127',
+    description: '今日完成的检查数量',
     icon: ClipboardList,
-    trend: { value: '+18%', isPositive: true }
+    trend: { value: '+8%', isPositive: true },
+    variant: 'accent'
   },
   {
     title: '系统健康度',
-    value: '99.8%',
-    description: '系统可用性指标',
+    value: '99.5%',
+    description: '系统运行正常率',
     icon: Activity,
-    trend: { value: '+0.2%', isPositive: true }
+    trend: { value: '稳定', isPositive: true },
+    variant: 'warning'
   }
 ]
 
-const quickActions = [
+interface QuickAction {
+  title: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  href: string
+  color: string
+  bgColor: string
+}
+
+const quickActions: QuickAction[] = [
   {
     title: '用户管理',
     description: '管理系统用户和权限',
     icon: Users,
     href: '/admin/users',
-    color: 'bg-blue-500'
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50 hover:bg-blue-100'
   },
   {
     title: '机构管理',
     description: '管理合作医疗机构',
     icon: Building2,
     href: '/admin/clinics',
-    color: 'bg-green-500'
+    color: 'text-green-600',
+    bgColor: 'bg-green-50 hover:bg-green-100'
+  },
+  {
+    title: '检查记录',
+    description: '查看所有检查数据',
+    icon: ClipboardList,
+    href: '/admin/examinations',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50 hover:bg-purple-100'
   },
   {
     title: '系统设置',
     description: '配置系统参数',
     icon: Settings,
     href: '/admin/settings',
-    color: 'bg-purple-500'
-  },
-  {
-    title: '安全中心',
-    description: '安全日志和监控',
-    icon: Shield,
-    href: '/admin/security',
-    color: 'bg-red-500'
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-50 hover:bg-amber-100'
   }
 ]
 
-const recentActivities = [
+interface Activity {
+  message: string
+  time: string
+  type: 'info' | 'success' | 'warning'
+  icon: React.ComponentType<{ className?: string }>
+}
+
+const recentActivities: Activity[] = [
   {
-    type: 'user_register',
-    message: '新用户注册：张医生（北京儿童口腔诊所）',
-    time: '2分钟前'
+    message: '新用户注册：张三医生',
+    time: '5分钟前',
+    type: 'success',
+    icon: UserCheck
   },
   {
-    type: 'clinic_added',
-    message: '新机构加入：上海童牙口腔医院',
-    time: '15分钟前'
+    message: '系统备份已完成',
+    time: '1小时前',
+    type: 'info',
+    icon: Database
   },
   {
-    type: 'system_update',
-    message: 'AI模型更新完成：口内分析模型 v2.1',
-    time: '1小时前'
+    message: '检查报告批量处理完成',
+    time: '2小时前',
+    type: 'success',
+    icon: ClipboardList
   },
   {
-    type: 'alert',
-    message: '系统负载预警：CPU使用率达到85%',
-    time: '2小时前'
+    message: '定时任务执行完成',
+    time: '3小时前',
+    type: 'info',
+    icon: Clock
   }
 ]
 
 export default function AdminDashboard() {
+  const { user } = useAuth()
   const router = useRouter()
-  const { user, isAuthenticated } = useAuth()
-  const [systemStatus, setSystemStatus] = useState({
-    database: 'healthy',
-    ai_service: 'healthy',
-    redis: 'healthy'
-  })
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login')
-      return
-    }
-
-    if (user?.role !== 'super_admin' && user?.role !== 'admin') {
-      router.push('/unauthorized')
-      return
-    }
-  }, [isAuthenticated, user, router])
-
-  if (!isAuthenticated || (user?.role !== 'super_admin' && user?.role !== 'admin')) {
-    return null
+  const handleQuickAction = (href: string) => {
+    router.push(href)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">管理控制台</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                欢迎回来，{user?.fullName}
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm">
-                <div className={`w-2 h-2 rounded-full ${systemStatus.database === 'healthy' ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                <span>数据库</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <div className={`w-2 h-2 rounded-full ${systemStatus.ai_service === 'healthy' ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                <span>AI服务</span>
-              </div>
-              <Button variant="outline" onClick={() => router.push('/admin/settings')}>
-                <Settings className="w-4 h-4 mr-2" />
-                系统设置
-              </Button>
-            </div>
-          </div>
+    <MedicalLayout
+      title="管理控制台"
+      description={`欢迎回来，${user?.fullName} - 系统总览和快捷操作`}
+      headerActions={
+        <div className="flex space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            本月报告
+          </Button>
+          <Button
+            size="sm"
+            className="bg-blue-600 text-white hover:bg-blue-700"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            导出数据
+          </Button>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      }
+    >
+      <div className="space-y-8">
+        {/* 统计概览 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {statsCards.map((stat, index) => (
             <motion.div
               key={stat.title}
@@ -184,144 +193,157 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="card-hover">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon className="h-4 w-4 text-gray-400" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <div className="flex items-center mt-2">
-                    <p className="text-xs text-gray-500">{stat.description}</p>
-                    {stat.trend && (
-                      <span className={`ml-2 text-xs ${stat.trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                        {stat.trend.value}
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <MedicalCard
+                title={stat.title}
+                value={stat.value}
+                description={stat.description}
+                icon={stat.icon}
+                trend={stat.trend}
+                variant={stat.variant}
+              />
             </motion.div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 快捷操作 */}
           <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="w-5 h-5 mr-2" />
-                  快捷操作
-                </CardTitle>
-                <CardDescription>
-                  常用的管理功能快速入口
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {quickActions.map((action, index) => (
-                    <motion.div
-                      key={action.title}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => router.push(action.href)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-lg ${action.color}`}>
-                          <action.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-gray-900">{action.title}</h3>
-                          <p className="text-sm text-gray-500">{action.description}</p>
-                        </div>
+            <ChartCard
+              title="快捷操作"
+              description="常用的管理功能入口"
+              variant="primary"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {quickActions.map((action, index) => (
+                  <motion.div
+                    key={action.title}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className={`group p-4 rounded-xl border border-gray-200 cursor-pointer transition-all duration-200 hover:shadow-md ${action.bgColor}`}
+                    onClick={() => handleQuickAction(action.href)}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-gray-200">
+                        <action.icon className={`w-5 h-5 ${action.color}`} />
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* System Status */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Cpu className="w-5 h-5 mr-2" />
-                  系统状态
-                </CardTitle>
-                <CardDescription>
-                  实时系统运行状态监控
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 border rounded-lg">
-                    <Database className="w-8 h-8 mx-auto text-blue-500 mb-2" />
-                    <p className="text-sm font-medium">数据库</p>
-                    <p className="text-xs text-green-600">正常运行</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Activity className="w-8 h-8 mx-auto text-green-500 mb-2" />
-                    <p className="text-sm font-medium">AI服务</p>
-                    <p className="text-xs text-green-600">正常运行</p>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Shield className="w-8 h-8 mx-auto text-purple-500 mb-2" />
-                    <p className="text-sm font-medium">安全系统</p>
-                    <p className="text-xs text-green-600">正常运行</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900 group-hover:text-gray-800">
+                          {action.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {action.description}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </ChartCard>
           </div>
 
-          {/* Recent Activities */}
+          {/* 最近活动 */}
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Calendar className="w-5 h-5 mr-2" />
-                  最近活动
-                </CardTitle>
-                <CardDescription>
-                  系统最新动态和事件
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivities.map((activity, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="flex items-start space-x-3 p-3 border rounded-lg"
-                    >
-                      <div className={`mt-1 w-2 h-2 rounded-full ${
-                        activity.type === 'alert' ? 'bg-red-400' : 'bg-green-400'
-                      }`}></div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-900">{activity.message}</p>
-                        <p className="text-xs text-gray-500">{activity.time}</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <Button variant="outline" className="w-full">
-                    <FileText className="w-4 h-4 mr-2" />
-                    查看所有活动
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <ChartCard
+              title="最近活动"
+              description="系统最新动态"
+              variant="secondary"
+            >
+              <div className="space-y-4">
+                {recentActivities.map((activity, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 ${
+                      activity.type === 'success' ? 'bg-green-100 text-green-600' :
+                      activity.type === 'warning' ? 'bg-amber-100 text-amber-600' :
+                      'bg-blue-100 text-blue-600'
+                    }`}>
+                      <activity.icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-900 leading-5">
+                        {activity.message}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {activity.time}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full mt-4 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                查看全部活动
+              </Button>
+            </ChartCard>
           </div>
         </div>
-      </main>
-    </div>
+
+        {/* 系统状态监控 */}
+        <ChartCard
+          title="系统状态监控"
+          description="实时系统运行状态监控"
+          variant="accent"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 rounded-xl bg-gray-50 border border-gray-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-gray-200 mx-auto mb-4">
+                <Database className="w-6 h-6 text-gray-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-900 mb-2">数据库</p>
+              <StatusIndicator status="online" label="正常运行" />
+            </div>
+            
+            <div className="text-center p-6 rounded-xl bg-gray-50 border border-gray-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-gray-200 mx-auto mb-4">
+                <BarChart3 className="w-6 h-6 text-gray-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-900 mb-2">AI服务</p>
+              <StatusIndicator status="online" label="正常运行" />
+            </div>
+            
+            <div className="text-center p-6 rounded-xl bg-gray-50 border border-gray-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-gray-200 mx-auto mb-4">
+                <Shield className="w-6 h-6 text-gray-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-900 mb-2">安全系统</p>
+              <StatusIndicator status="online" label="正常运行" />
+            </div>
+          </div>
+
+          {/* 性能指标 */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h4 className="text-sm font-medium text-gray-900 mb-4">性能指标</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 rounded-lg bg-white border border-gray-200">
+                <div className="text-lg font-semibold text-gray-900">45ms</div>
+                <div className="text-xs text-gray-500">平均响应时间</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-white border border-gray-200">
+                <div className="text-lg font-semibold text-gray-900">99.9%</div>
+                <div className="text-xs text-gray-500">系统可用率</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-white border border-gray-200">
+                <div className="text-lg font-semibold text-gray-900">2.3GB</div>
+                <div className="text-xs text-gray-500">内存使用量</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-white border border-gray-200">
+                <div className="text-lg font-semibold text-gray-900">127</div>
+                <div className="text-xs text-gray-500">在线用户</div>
+              </div>
+            </div>
+          </div>
+        </ChartCard>
+      </div>
+    </MedicalLayout>
   )
 }

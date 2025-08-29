@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后端直接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; text-align: center; }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .success { border-color: #28a745; background: #d4edda; }
+        .error { border-color: #dc3545; background: #f8d7da; }
+        .info { border-color: #17a2b8; background: #d1ecf1; }
+        button {
+            padding: 12px 24px;
+            margin: 8px;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #0056b3; }
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 后端服务直接测试</h1>
+        
+        <div class="test-section info">
+            <h2>📡 服务状态检查</h2>
+            <button onclick="checkBackend()">检查后端服务</button>
+            <div id="statusResult" class="result">点击按钮检查后端状态...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔐 登录功能测试</h2>
+            <div class="login-form">
+                <input type="email" id="email" placeholder="邮箱" value="super@admin.com">
+                <input type="password" id="password" placeholder="密码" value="admin123">
+                <button onclick="testLogin()">测试登录</button>
+            </div>
+            <div id="loginResult" class="result">填写信息后点击测试...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 一键完整测试</h2>
+            <button onclick="runAllTests()" style="background: #28a745;">运行所有测试</button>
+            <div id="allTestsResult" class="result">点击运行完整测试流程...</div>
+        </div>
+    </div>
+
+    <script>
+        const backendUrl = 'http://localhost:3001';
+        
+        function updateResult(elementId, content, className = '') {
+            const element = document.getElementById(elementId);
+            element.textContent = content;
+            const section = element.closest('.test-section');
+            section.className = 'test-section ' + className;
+        }
+
+        async function checkBackend() {
+            updateResult('statusResult', '正在检查后端服务...');
+            
+            try {
+                // 检查健康状态
+                const healthResponse = await fetch(`${backendUrl}/health`);
+                
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    const result = `✅ 后端服务正常运行！
+
+服务状态: ${healthData.status}
+响应时间: ${new Date().toISOString()}
+数据库状态: ${healthData.services.database}
+API状态: ${healthData.services.api}
+
+完整响应:
+${JSON.stringify(healthData, null, 2)}`;
+                    
+                    updateResult('statusResult', result, 'success');
+                } else {
+                    updateResult('statusResult', `❌ 后端服务响应异常: HTTP ${healthResponse.status}`, 'error');
+                }
+            } catch (error) {
+                updateResult('statusResult', `❌ 无法连接到后端服务: ${error.message}
+
+请确保：
+1. 后端服务正在运行 (node simple-backend.js)
+2. 服务监听在 http://localhost:3001
+3. 防火墙没有阻塞3001端口`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            updateResult('loginResult', '正在测试登录功能...');
+            
+            try {
+                const loginResponse = await fetch(`${backendUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const loginData = await loginResponse.json();
+                
+                if (loginResponse.ok && loginData.success) {
+                    const result = `✅ 登录测试成功！
+
+用户信息:
+- 姓名: ${loginData.data.user.fullName}
+- 角色: ${loginData.data.user.role}
+- 邮箱: ${loginData.data.user.email}
+- 用户ID: ${loginData.data.user.id}
+
+Token: ${loginData.data.token.substring(0, 30)}...
+
+完整响应:
+${JSON.stringify(loginData, null, 2)}`;
+                    
+                    updateResult('loginResult', result, 'success');
+                    
+                    // 测试认证状态
+                    setTimeout(() => testAuthStatus(loginData.data.token), 1000);
+                    
+                } else {
+                    updateResult('loginResult', `❌ 登录失败: ${loginData.error || '未知错误'}`, 'error');
+                }
+                
+            } catch (error) {
+                updateResult('loginResult', `❌ 登录请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAuthStatus(token) {
+            try {
+                const meResponse = await fetch(`${backendUrl}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (meResponse.ok) {
+                    const meData = await meResponse.json();
+                    const current = document.getElementById('loginResult').textContent;
+                    updateResult('loginResult', current + `
+
+🔒 认证状态测试: ✅ 成功
+认证用户: ${meData.data.user.fullName}`, 'success');
+                }
+            } catch (error) {
+                const current = document.getElementById('loginResult').textContent;
+                updateResult('loginResult', current + `
+
+🔒 认证状态测试: ❌ 失败 (${error.message})`, 'success');
+            }
+        }
+
+        async function runAllTests() {
+            updateResult('allTestsResult', '🚀 开始运行完整测试流程...\n\n');
+            
+            // 测试1: 后端健康检查
+            updateResult('allTestsResult', '🚀 开始运行完整测试流程...\n\n1. 检查后端服务状态...');
+            
+            try {
+                const healthResponse = await fetch(`${backendUrl}/health`);
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    updateResult('allTestsResult', `🚀 开始运行完整测试流程...\n\n1. ✅ 后端服务状态: ${healthData.status}\n\n2. 测试登录功能...`);
+                    
+                    // 测试2: 登录功能
+                    const loginResponse = await fetch(`${backendUrl}/api/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email: 'super@admin.com', 
+                            password: 'admin123' 
+                        })
+                    });
+                    
+                    const loginData = await loginResponse.json();
+                    
+                    if (loginResponse.ok && loginData.success) {
+                        updateResult('allTestsResult', `🚀 开始运行完整测试流程...\n\n1. ✅ 后端服务状态: ${healthData.status}\n2. ✅ 登录功能正常: ${loginData.data.user.fullName}\n\n3. 测试认证状态...`);
+                        
+                        // 测试3: 认证状态
+                        const meResponse = await fetch(`${backendUrl}/api/auth/me`, {
+                            headers: { 
+                                'Authorization': `Bearer ${loginData.data.token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (meResponse.ok) {
+                            updateResult('allTestsResult', `🚀 完整测试流程结果:
+
+1. ✅ 后端服务状态: ${healthData.status}
+2. ✅ 登录功能正常: ${loginData.data.user.fullName}  
+3. ✅ 认证状态正常: Token验证成功
+
+🎉 所有测试通过！后端服务完全正常！
+
+现在您可以：
+1. 访问前端: http://localhost:3000/login
+2. 使用账号: super@admin.com / admin123
+3. 如果前端还没启动，等待几秒钟`, 'success');
+                        } else {
+                            updateResult('allTestsResult', `测试过程中认证状态检查失败`, 'error');
+                        }
+                    } else {
+                        updateResult('allTestsResult', `测试过程中登录功能失败: ${loginData.error}`, 'error');
+                    }
+                } else {
+                    updateResult('allTestsResult', `测试过程中后端健康检查失败`, 'error');
+                }
+            } catch (error) {
+                updateResult('allTestsResult', `完整测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 页面加载时自动运行测试
+        window.onload = function() {
+            setTimeout(runAllTests, 500);
+        };
+    </script>
+</body>
+</html>

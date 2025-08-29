@@ -2,277 +2,335 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { 
-  Stethoscope, 
-  Eye, 
-  EyeOff, 
-  Loader2,
-  AlertCircle 
-} from 'lucide-react'
-import toast from 'react-hot-toast'
-
+import { toast } from 'react-hot-toast'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card'
+import { 
+  UserCircle2, 
+  Stethoscope, 
+  Shield, 
+  Eye, 
+  EyeOff,
+  ArrowRight,
+  ArrowLeft,
+  BarChart3,
+  CheckCircle
+} from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
-// 表单验证Schema
 const loginSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(1, '密码不能为空'),
+  password: z.string().min(6, '密码至少需要6个字符'),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
 
+interface UserRole {
+  id: string
+  name: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  color: string
+  bgColor: string
+  borderColor: string
+  defaultCredentials: {
+    email: string
+    password: string
+  }
+}
+
+const userRoles: UserRole[] = [
+  {
+    id: 'doctor',
+    name: '医生',
+    description: '诊断检查、报告分析、患者管理',
+    icon: Stethoscope,
+    color: 'text-green-600',
+    bgColor: 'bg-green-50 hover:bg-green-100',
+    borderColor: 'border-green-200 hover:border-green-300',
+    defaultCredentials: {
+      email: 'doctor@clinic.com',
+      password: 'doctor123'
+    }
+  },
+  {
+    id: 'patient',
+    name: '患者',
+    description: '查看检查报告、健康档案管理',
+    icon: UserCircle2,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50 hover:bg-blue-100',
+    borderColor: 'border-blue-200 hover:border-blue-300',
+    defaultCredentials: {
+      email: 'patient@example.com',
+      password: 'patient123'
+    }
+  },
+  {
+    id: 'admin',
+    name: '管理员',
+    description: '系统管理、用户权限、数据统计',
+    icon: Shield,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50 hover:bg-purple-100',
+    borderColor: 'border-purple-200 hover:border-purple-300',
+    defaultCredentials: {
+      email: 'super@admin.com',
+      password: 'admin123'
+    }
+  }
+]
+
 export default function LoginPage() {
+  const { login, isLoading } = useAuth()
   const router = useRouter()
-  const { login } = useAuth()
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null)
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue
   } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema)
   })
 
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true)
-    
     try {
-      const result = await login(data.email, data.password)
+      await login(data.email, data.password)
+      toast.success('登录成功！')
       
-      if (result.success && result.user) {
-        toast.success('登录成功！')
-        
-        // 根据用户角色跳转到相应页面
-        switch (result.user.role) {
-          case 'super_admin':
-          case 'admin':
-            router.push('/admin')
-            break
-          case 'doctor':
-          case 'nurse':
-            router.push('/clinic')
-            break
-          case 'patient':
-            router.push('/patient')
-            break
-          default:
-            router.push('/')
-        }
+      // 根据用户角色跳转到对应的页面
+      if (data.email.includes('admin')) {
+        router.push('/admin')
+      } else if (data.email.includes('doctor')) {
+        router.push('/clinic')
+      } else if (data.email.includes('patient')) {
+        router.push('/patient')
       } else {
-        toast.error(result.error || '登录失败')
+        router.push('/')
       }
-    } catch (error) {
-      toast.error('登录过程中发生错误，请稍后再试')
-    } finally {
-      setIsLoading(false)
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || '登录失败，请检查您的凭据')
     }
   }
 
+  const handleRoleSelect = (role: UserRole) => {
+    setSelectedRole(role)
+    setValue('email', role.defaultCredentials.email)
+    setValue('password', role.defaultCredentials.password)
+  }
+
+  const handleBack = () => {
+    setSelectedRole(null)
+    setValue('email', '')
+    setValue('password', '')
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md"
-      >
-        {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex justify-center mb-4"
-          >
-            <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
-              <Stethoscope className="w-8 h-8 text-white" />
-            </div>
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-2xl font-bold text-gray-900 mb-2"
-          >
-            儿童口腔筛查平台
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-gray-600"
-          >
-            AI赋能的专业口腔健康筛查服务
-          </motion.p>
-        </div>
-
-        {/* Login Card */}
-        <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl text-center font-semibold">
-              登录账户
-            </CardTitle>
-            <CardDescription className="text-center text-gray-500">
-              请输入您的账户信息登录系统
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Email Field */}
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  邮箱地址
-                </label>
-                <input
-                  {...register('email')}
-                  type="email"
-                  id="email"
-                  placeholder="请输入您的邮箱地址"
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                    errors.email ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                />
-                {errors.email && (
-                  <div className="flex items-center space-x-2 text-red-600 text-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{errors.email.message}</span>
-                  </div>
-                )}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md mx-auto">
+        <AnimatePresence mode="wait">
+          {!selectedRole ? (
+            // 角色选择页面
+            <motion.div
+              key="role-selection"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Logo和标题 */}
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5, type: "spring" }}
+                  className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 mb-4"
+                >
+                  <BarChart3 className="w-8 h-8 text-white" />
+                </motion.div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  儿童口腔AI筛查平台
+                </h1>
+                <p className="text-gray-600">
+                  请选择您的身份以继续
+                </p>
               </div>
 
-              {/* Password Field */}
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  密码
-                </label>
-                <div className="relative">
-                  <input
-                    {...register('password')}
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    placeholder="请输入您的密码"
-                    className={`w-full px-3 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                      errors.password ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              {/* 角色选择卡片 */}
+              <div className="space-y-3">
+                {userRoles.map((role, index) => (
+                  <motion.div
+                    key={role.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-                {errors.password && (
-                  <div className="flex items-center space-x-2 text-red-600 text-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{errors.password.message}</span>
+                    <Card 
+                      className={`cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${role.borderColor} ${role.bgColor}`}
+                      onClick={() => handleRoleSelect(role)}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-shrink-0">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-gray-200">
+                              <role.icon className={`w-6 h-6 ${role.color}`} />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                              {role.name}
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              {role.description}
+                            </p>
+                          </div>
+                          <ArrowRight className="w-5 h-5 text-gray-400" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* 底部提示 */}
+              <div className="mt-8 text-center">
+                <p className="text-xs text-gray-500">
+                  选择角色后将自动填入测试账号密码
+                </p>
+              </div>
+            </motion.div>
+          ) : (
+            // 登录表单页面
+            <motion.div
+              key="login-form"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="bg-white border border-gray-200 shadow-lg">
+                <CardHeader className="text-center pb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleBack}
+                      className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      返回
+                    </Button>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-gray-200">
+                        <selectedRole.icon className={`w-5 h-5 ${selectedRole.color}`} />
+                      </div>
+                      <span className="text-gray-900 font-medium">{selectedRole.name}登录</span>
+                    </div>
                   </div>
-                )}
-              </div>
+                  
+                  <CardTitle className="text-xl font-semibold text-gray-900">
+                    欢迎回来
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">
+                    请输入您的账号信息以登录系统
+                  </CardDescription>
+                </CardHeader>
 
-              {/* Remember Me and Forgot Password */}
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">记住我</span>
-                </label>
-                <button
-                  type="button"
-                  className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
-                  onClick={() => router.push('/forgot-password')}
-                >
-                  忘记密码？
-                </button>
-              </div>
+                <CardContent>
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    {/* 邮箱输入 */}
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-gray-700">邮箱地址</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="请输入邮箱地址"
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                        {...register('email')}
+                      />
+                      {errors.email && (
+                        <p className="text-red-600 text-sm">{errors.email.message}</p>
+                      )}
+                    </div>
 
-              {/* Login Button */}
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full medical-primary py-2.5"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    登录中...
-                  </>
-                ) : (
-                  '登录'
-                )}
-              </Button>
-            </form>
+                    {/* 密码输入 */}
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-gray-700">密码</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="请输入密码"
+                          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-10"
+                          {...register('password')}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 text-gray-500 hover:text-gray-700"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                      {errors.password && (
+                        <p className="text-red-600 text-sm">{errors.password.message}</p>
+                      )}
+                    </div>
 
-            {/* Demo Accounts */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-3">测试账户</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">超级管理员:</span>
-                  <span className="font-mono text-blue-600 text-xs">super@admin.com / admin123</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">门诊管理员:</span>
-                  <span className="font-mono text-purple-600 text-xs">admin@clinic.com / admin123</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">医生:</span>
-                  <span className="font-mono text-green-600 text-xs">doctor@clinic.com / doctor123</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">患者:</span>
-                  <span className="font-mono text-orange-600 text-xs">patient@example.com / patient123</span>
-                </div>
-              </div>
-            </div>
+                    {/* 测试账号提示 */}
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <p className="text-green-800 text-sm">
+                        <CheckCircle className="w-4 h-4 inline mr-1" />
+                        测试账号已自动填入，点击登录即可体验
+                      </p>
+                    </div>
 
-            {/* Register Link */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                还没有账户？{' '}
-                <button
-                  type="button"
-                  onClick={() => router.push('/register')}
-                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                >
-                  立即注册
-                </button>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+                    {/* 登录按钮 */}
+                    <Button
+                      type="submit"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>登录中...</span>
+                        </div>
+                      ) : (
+                        `以${selectedRole.name}身份登录`
+                      )}
+                    </Button>
+                  </form>
 
-        {/* Footer */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>&copy; 2024 儿童口腔筛查平台. 保留所有权利.</p>
-          <div className="mt-2 space-x-4">
-            <button className="hover:text-gray-700 transition-colors">
-              隐私政策
-            </button>
-            <button className="hover:text-gray-700 transition-colors">
-              服务条款
-            </button>
-            <button className="hover:text-gray-700 transition-colors">
-              联系我们
-            </button>
-          </div>
-        </div>
-      </motion.div>
+                  {/* 底部链接 */}
+                  <div className="mt-6 text-center space-y-2">
+                    <p className="text-xs text-gray-500">
+                      登录即表示您同意我们的服务条款和隐私政策
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   )
 }

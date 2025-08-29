@@ -1,214 +1,223 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
-  Calendar,
-  Users,
-  ClipboardList,
-  Camera,
-  FileText,
+  Users, 
+  FileText, 
+  Calendar, 
   TrendingUp,
   Clock,
   CheckCircle,
   AlertCircle,
-  PlusCircle,
-  Search
+  Plus,
+  Stethoscope,
+  Heart,
+  Activity,
+  UserPlus,
+  FileSearch,
+  BarChart3,
+  Eye
 } from 'lucide-react'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { MedicalCard, ChartCard, StatusIndicator } from '@/components/ui/medical-card'
+import { MedicalLayout } from '@/components/Layout/MedicalLayout'
 import { useAuth } from '@/contexts/AuthContext'
 
-interface PatientRecord {
-  id: string
-  name: string
-  age: number
-  gender: string
-  lastVisit: string
-  status: 'completed' | 'pending' | 'in_progress'
-  nextAppointment?: string
+interface TodayStats {
+  title: string
+  value: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  trend?: {
+    value: string
+    isPositive: boolean
+  }
+  variant: 'primary' | 'secondary' | 'accent' | 'warning'
 }
 
-const todayStats = [
+const todayStats: TodayStats[] = [
   {
-    title: '今日预约',
-    value: '12',
-    description: '已确认的预约患者',
-    icon: Calendar,
-    color: 'text-blue-600'
+    title: '今日患者',
+    value: '23',
+    description: '今日接诊患者数量',
+    icon: Users,
+    trend: { value: '+5', isPositive: true },
+    variant: 'primary'
   },
   {
-    title: '已完成筛查',
+    title: '待处理检查',
     value: '8',
-    description: '今日完成的筛查',
+    description: '需要医生确认的检查',
+    icon: FileText,
+    trend: { value: '-2', isPositive: false },
+    variant: 'warning'
+  },
+  {
+    title: '已完成检查',
+    value: '15',
+    description: '今日已完成检查数量',
     icon: CheckCircle,
-    color: 'text-green-600'
+    trend: { value: '+7', isPositive: true },
+    variant: 'secondary'
   },
   {
-    title: '进行中',
-    value: '2',
-    description: '正在分析的筛查',
+    title: '平均检查时间',
+    value: '12分钟',
+    description: '每次检查平均耗时',
     icon: Clock,
-    color: 'text-yellow-600'
-  },
-  {
-    title: '待审核报告',
-    value: '3',
-    description: '需要医生审核的报告',
-    icon: AlertCircle,
-    color: 'text-red-600'
+    trend: { value: '-3分钟', isPositive: true },
+    variant: 'accent'
   }
 ]
 
-const recentPatients: PatientRecord[] = [
-  {
-    id: '1',
-    name: '小明',
-    age: 6,
-    gender: '男',
-    lastVisit: '2024-01-15',
-    status: 'completed',
-    nextAppointment: '2024-07-15'
-  },
-  {
-    id: '2', 
-    name: '小红',
-    age: 8,
-    gender: '女',
-    lastVisit: '2024-01-15',
-    status: 'pending'
-  },
-  {
-    id: '3',
-    name: '小刚',
-    age: 5,
-    gender: '男',
-    lastVisit: '2024-01-15',
-    status: 'in_progress'
-  }
-]
+interface QuickAction {
+  title: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  href: string
+  color: string
+  bgColor: string
+  primary?: boolean
+}
 
-const quickActions = [
+const quickActions: QuickAction[] = [
   {
-    title: '新建筛查',
-    description: '为患者开始新的口腔筛查',
-    icon: PlusCircle,
+    title: '新建检查',
+    description: '为患者创建新的口腔检查',
+    icon: Plus,
     href: '/clinic/examination/new',
-    color: 'bg-green-500',
+    color: 'text-green-600',
+    bgColor: 'bg-green-50 hover:bg-green-100',
     primary: true
   },
   {
     title: '患者管理',
     description: '查看和管理患者信息',
-    icon: Users,
+    icon: UserPlus,
     href: '/clinic/patients',
-    color: 'bg-blue-500'
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50 hover:bg-blue-100'
   },
   {
-    title: '筛查记录',
-    description: '查看历史筛查记录',
-    icon: ClipboardList,
+    title: '检查记录',
+    description: '查看历史检查记录',
+    icon: FileSearch,
     href: '/clinic/examinations',
-    color: 'bg-purple-500'
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50 hover:bg-purple-100'
   },
   {
     title: '报告中心',
-    description: '管理和审核分析报告',
-    icon: FileText,
+    description: '查看和管理检查报告',
+    icon: BarChart3,
     href: '/clinic/reports',
-    color: 'bg-orange-500'
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-50 hover:bg-amber-100'
+  }
+]
+
+interface RecentExamination {
+  id: string
+  patientName: string
+  type: string
+  status: 'pending' | 'in_progress' | 'completed' | 'review'
+  time: string
+  priority: 'high' | 'medium' | 'low'
+}
+
+const recentExaminations: RecentExamination[] = [
+  {
+    id: '1',
+    patientName: '张小明',
+    type: '口腔全景检查',
+    status: 'pending',
+    time: '10:30',
+    priority: 'high'
+  },
+  {
+    id: '2',
+    patientName: '李小美',
+    type: '牙齿矫正复查',
+    status: 'in_progress',
+    time: '09:45',
+    priority: 'medium'
+  },
+  {
+    id: '3',
+    patientName: '王小华',
+    type: '蛀牙治疗检查',
+    status: 'completed',
+    time: '09:15',
+    priority: 'low'
+  },
+  {
+    id: '4',
+    patientName: '赵小强',
+    type: '口腔清洁检查',
+    status: 'review',
+    time: '08:30',
+    priority: 'medium'
   }
 ]
 
 export default function ClinicDashboard() {
+  const { user } = useAuth()
   const router = useRouter()
-  const { user, isAuthenticated } = useAuth()
-  const [searchTerm, setSearchTerm] = useState('')
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login')
-      return
-    }
-
-    if (user?.role !== 'doctor' && user?.role !== 'nurse' && user?.role !== 'admin') {
-      router.push('/unauthorized')
-      return
-    }
-  }, [isAuthenticated, user, router])
-
-  if (!isAuthenticated || 
-      (user?.role !== 'doctor' && user?.role !== 'nurse' && user?.role !== 'admin')) {
-    return null
+  const handleQuickAction = (href: string) => {
+    router.push(href)
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800'
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'in_progress':
-        return 'bg-blue-100 text-blue-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
+      case 'pending': return 'bg-amber-50 text-amber-700 border-amber-200'
+      case 'in_progress': return 'bg-blue-50 text-blue-700 border-blue-200'
+      case 'completed': return 'bg-green-50 text-green-700 border-green-200'
+      case 'review': return 'bg-purple-50 text-purple-700 border-purple-200'
+      default: return 'bg-gray-50 text-gray-700 border-gray-200'
     }
   }
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'completed':
-        return '已完成'
-      case 'pending':
-        return '待处理'
-      case 'in_progress':
-        return '进行中'
-      default:
-        return '未知'
+      case 'pending': return '待检查'
+      case 'in_progress': return '检查中'
+      case 'completed': return '已完成'
+      case 'review': return '待复核'
+      default: return '未知'
+    }
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'text-red-600'
+      case 'medium': return 'text-amber-600'
+      case 'low': return 'text-green-600'
+      default: return 'text-gray-600'
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">门诊工作台</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                欢迎回来，{user?.fullName} - {user?.title || '医生'}
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="搜索患者..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              <Button 
-                className="medical-primary"
-                onClick={() => router.push('/clinic/examination/new')}
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                开始筛查
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {/* Today's Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <MedicalLayout
+      title="门诊工作台"
+      description={`${user?.fullName}医生 - 今日门诊概览和快捷操作`}
+      headerActions={
+        <Button
+          onClick={() => router.push('/clinic/examination/new')}
+          className="bg-green-600 text-white hover:bg-green-700"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          新建检查
+        </Button>
+      }
+    >
+      <div className="space-y-8">
+        {/* 今日统计 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {todayStats.map((stat, index) => (
             <motion.div
               key={stat.title}
@@ -216,203 +225,226 @@ export default function ClinicDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="card-hover">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
-                </CardContent>
-              </Card>
+              <MedicalCard
+                title={stat.title}
+                value={stat.value}
+                description={stat.description}
+                icon={stat.icon}
+                trend={stat.trend}
+                variant={stat.variant}
+              />
             </motion.div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 快捷操作 */}
           <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="w-5 h-5 mr-2" />
-                  快捷操作
-                </CardTitle>
-                <CardDescription>
-                  常用的门诊功能快速入口
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {quickActions.map((action, index) => (
-                    <motion.div
-                      key={action.title}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className={`p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${
-                        action.primary ? 'border-green-200 bg-green-50' : ''
-                      }`}
-                      onClick={() => router.push(action.href)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className={`p-2 rounded-lg ${action.color}`}>
-                          <action.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className={`font-medium ${action.primary ? 'text-green-900' : 'text-gray-900'}`}>
-                            {action.title}
-                          </h3>
-                          <p className={`text-sm ${action.primary ? 'text-green-700' : 'text-gray-500'}`}>
-                            {action.description}
-                          </p>
-                        </div>
+            <ChartCard
+              title="快捷操作"
+              description="常用的诊疗功能入口"
+              variant="primary"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {quickActions.map((action, index) => (
+                  <motion.div
+                    key={action.title}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className={`group p-4 rounded-xl border cursor-pointer transition-all duration-200 hover:shadow-md ${
+                      action.primary 
+                        ? 'border-green-300 bg-green-50 hover:bg-green-100' 
+                        : `border-gray-200 ${action.bgColor}`
+                    }`}
+                    onClick={() => handleQuickAction(action.href)}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-gray-200">
+                        <action.icon className={`w-5 h-5 ${action.color}`} />
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Today's Schedule */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    今日安排
-                  </div>
-                  <Button variant="outline" size="sm">
-                    查看全部
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-blue-900">小张 - 常规检查</p>
-                      <p className="text-sm text-blue-700">6岁男孩，首次筛查</p>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">
+                          {action.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {action.description}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-blue-900">09:30</p>
-                      <p className="text-xs text-blue-700">进行中</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">小李 - 复查</p>
-                      <p className="text-sm text-gray-700">8岁女孩，正畸复查</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">10:30</p>
-                      <p className="text-xs text-gray-700">待到达</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">小王 - 常规检查</p>
-                      <p className="text-sm text-gray-700">5岁男孩，定期筛查</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">11:00</p>
-                      <p className="text-xs text-gray-700">已预约</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </ChartCard>
           </div>
 
-          {/* Recent Patients */}
+          {/* 今日检查安排 */}
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Users className="w-5 h-5 mr-2" />
-                    最近患者
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => router.push('/clinic/patients')}>
-                    查看全部
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentPatients.map((patient, index) => (
-                    <motion.div
-                      key={patient.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                      onClick={() => router.push(`/clinic/patients/${patient.id}`)}
-                    >
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <p className="font-medium text-gray-900">{patient.name}</p>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(patient.status)}`}>
-                            {getStatusText(patient.status)}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                          {patient.age}岁 {patient.gender} • 上次就诊：{patient.lastVisit}
-                        </p>
-                        {patient.nextAppointment && (
-                          <p className="text-xs text-blue-600 mt-1">
-                            下次预约：{patient.nextAppointment}
-                          </p>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => router.push('/clinic/patients/new')}
+            <ChartCard
+              title="今日检查安排"
+              description="预约和待处理的检查"
+              variant="secondary"
+            >
+              <div className="space-y-3">
+                {recentExaminations.map((exam, index) => (
+                  <motion.div
+                    key={exam.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/clinic/examinations/${exam.id}`)}
                   >
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    添加新患者
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex-shrink-0">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-gray-200">
+                        <Stethoscope className="w-4 h-4 text-gray-600" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {exam.patientName}
+                        </p>
+                        <div className="flex items-center space-x-1">
+                          <AlertCircle className={`w-3 h-3 ${getPriorityColor(exam.priority)}`} />
+                          <span className="text-xs text-gray-500">{exam.time}</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-2 truncate">
+                        {exam.type}
+                      </p>
+                      <Badge 
+                        variant="outline" 
+                        className={`text-xs border ${getStatusColor(exam.status)}`}
+                      >
+                        {getStatusText(exam.status)}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
 
-            {/* Quick Stats */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>本周统计</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">完成筛查</span>
-                    <span className="font-medium">42次</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">新增患者</span>
-                    <span className="font-medium">15人</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">生成报告</span>
-                    <span className="font-medium">38份</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">平均满意度</span>
-                    <span className="font-medium text-green-600">4.8分</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full mt-4 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                onClick={() => router.push('/clinic/examinations')}
+              >
+                查看全部检查记录
+              </Button>
+            </ChartCard>
           </div>
         </div>
-      </main>
-    </div>
+
+        {/* 诊疗数据总览 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* 本周统计 */}
+          <ChartCard
+            title="本周诊疗数据"
+            description="过去7天的诊疗统计"
+            variant="accent"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                    <Users className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">总患者数</p>
+                    <p className="text-xs text-gray-500">本周接诊患者</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-semibold text-gray-900">127</p>
+                  <Badge className="text-xs bg-green-100 text-green-700">+15.3%</Badge>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+                    <Heart className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">成功率</p>
+                    <p className="text-xs text-gray-500">诊疗成功率</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-semibold text-gray-900">98.5%</p>
+                  <Badge className="text-xs bg-green-100 text-green-700">+1.2%</Badge>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50">
+                    <Activity className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">平均满意度</p>
+                    <p className="text-xs text-gray-500">患者反馈评分</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-semibold text-gray-900">4.8</p>
+                  <Badge className="text-xs bg-green-100 text-green-700">+0.3</Badge>
+                </div>
+              </div>
+            </div>
+          </ChartCard>
+
+          {/* 设备状态 */}
+          <ChartCard
+            title="设备状态监控"
+            description="医疗设备运行状态"
+            variant="warning"
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-gray-200">
+                    <Activity className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">口腔扫描仪</span>
+                </div>
+                <StatusIndicator status="online" label="正常" className="border-0" />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-gray-200">
+                    <BarChart3 className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">AI分析系统</span>
+                </div>
+                <StatusIndicator status="online" label="正常" className="border-0" />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-gray-200">
+                    <FileText className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">报告系统</span>
+                </div>
+                <StatusIndicator status="warning" label="维护中" className="border-0" />
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-gray-200">
+                    <Calendar className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">预约系统</span>
+                </div>
+                <StatusIndicator status="online" label="正常" className="border-0" />
+              </div>
+            </div>
+          </ChartCard>
+        </div>
+      </div>
+    </MedicalLayout>
   )
 }
